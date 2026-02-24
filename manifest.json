@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "URL Inspector",
+  "version": "1.0",
+  "description": "Extract URL tracking parameters",
+  "permissions": ["sidePanel", "activeTab", "scripting", "webNavigation", "storage", "tabs"],
+  "background": {
+    "service_worker": "dist/background/service-worker.js"
+  },
+  "side_panel": {
+    "default_path": "dist/sidepanel/panel.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/content/content.js"]
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/content/extract-datav3.js"],
+      "world": "MAIN",
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Open URL Inspector"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["dist/content/extract-datav3.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

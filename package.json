@@ -1,0 +1,19 @@
+{
+  "name": "extention-crawl-data",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && copyfiles -u 1 src/**/*.html src/**/*.css src/content/extract-datav3.js dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/chrome": "^0.1.37",
+    "copyfiles": "^1.0.0",
+    "typescript": "^5.9.3"
+  }
+}
