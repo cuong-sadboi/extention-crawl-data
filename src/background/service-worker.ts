@@ -94,14 +94,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === "RELOAD_DATA") {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const tab = tabs[0];
-      if (!tab?.id) {
-        sendResponse(null);
-        return;
-      }
-      const tabId = tab.id;
+    const requestedTabId =
+      typeof message.tabId === "number" ? (message.tabId as number) : undefined;
 
+    const handleTab = (tabId: number) => {
       const finishReload = (merged: Record<string, unknown>) => {
         chrome.storage.session.set({ [`tab_${tabId}`]: merged });
         sendResponse(merged);
@@ -138,7 +134,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           finishReload(merged);
         });
       });
-    });
+    };
+
+    if (requestedTabId !== undefined) {
+      handleTab(requestedTabId);
+    } else {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        const tab = tabs[0];
+        if (!tab?.id) {
+          sendResponse(null);
+          return;
+        }
+        handleTab(tab.id);
+      });
+    }
 
     return true;
   }
