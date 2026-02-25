@@ -1,14 +1,14 @@
 const fields = [
-  { key: "rootdomain", label: "Root Domain" },
-  { key: "network", label: "Network" },
-  { key: "campaign_id", label: "Campaign ID" },
-  { key: "click_id", label: "Click ID" },
-  { key: "arb_campaign_id", label: "Arb Campaign" },
-  { key: "arbLayoutID", label: "Layout ID" },
-  { key: "pubId", label: "Pub ID" },
-  { key: "channelId", label: "Channel ID" },
-  { key: "styleId", label: "Style ID" },
-  { key: "keywords", label: "Keywords" },
+  "rootdomain",
+  "network",
+  "campaign_id",
+  "click_id",
+  "arb_campaign_id",
+  "arbLayoutID",
+  "pubId",
+  "channelId",
+  "styleId",
+  "keywords",
 ];
 
 function renderData(data: any) {
@@ -22,17 +22,16 @@ function renderData(data: any) {
   }
 
   container.innerHTML = fields
-    .map((f) => {
-      const value = data[f.key];
+    .map((key) => {
+      const value = data[key];
       const formatted =
         value == null || value === ""
           ? ""
           : Array.isArray(value)
             ? value.join(", ")
             : String(value);
-      const display = formatted || "—";
-      const isEmpty = !formatted;
-      const safeDisplay = String(display)
+      if (!formatted) return "";
+      const safeDisplay = formatted
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -41,10 +40,17 @@ function renderData(data: any) {
       return `
         <div class="field">
           <div class="field-info">
-            <div class="field-label">${f.label}</div>
-            <div class="field-value${isEmpty ? " empty" : ""}">${safeDisplay}</div>
+            <div class="field-label">${key}</div>
+            <div class="field-value">${safeDisplay}</div>
           </div>
-          ${!isEmpty ? `<button class="copy-btn" data-value="${safeValue}">Copy</button>` : ""}
+          <button class="copy-btn" data-value="${safeValue}" title="Copy">
+            <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+            </svg>
+            <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          </button>
         </div>
       `;
     })
@@ -55,10 +61,8 @@ function renderData(data: any) {
     btn.addEventListener("click", () => {
       const val = (btn as HTMLElement).dataset.value || "";
       navigator.clipboard.writeText(val).then(() => {
-        btn.textContent = "✓ Copied";
         btn.classList.add("copied");
         setTimeout(() => {
-          btn.textContent = "Copy";
           btn.classList.remove("copied");
         }, 1500);
       });
@@ -95,7 +99,7 @@ function applyTheme(theme: "dark" | "light") {
 
 function initTheme() {
   chrome.storage.local.get(THEME_KEY, (result) => {
-    const theme = (result[THEME_KEY] as "dark" | "light") || "dark";
+    const theme = (result[THEME_KEY] as "dark" | "light") || "light";
     applyTheme(theme);
   });
 }
