@@ -7,13 +7,26 @@ function getRootDomain(hostname: string): string {
 function parseUrl(urlString: string) {
   try {
     const url = new URL(urlString);
+    const params = url.searchParams;
     return {
       rootdomain: getRootDomain(url.hostname),
-      arb_campaign_id: url.searchParams.get("arb_campaign_id"),
-      arbLayoutID: url.searchParams.get("arbLayoutID"),
-      click_id: url.searchParams.get("click_id"),
-      campaign_id: url.searchParams.get("campaign_id"),
-      network: url.searchParams.get("network"),
+      arb_campaign_id: params.get("arb_campaign_id"),
+      arbLayoutID: params.get("arbLayoutID"),
+      click_id: params.get("click_id"),
+      campaign_id: params.get("campaign_id"),
+      network: params.get("network"),
+      gclid: params.get("gclid"),
+      gbraid: params.get("gbraid"),
+      wbraid: params.get("wbraid"),
+      ttclid: params.get("ttclid"),
+      fbclid: params.get("fbclid"),
+      rdt_cid: params.get("rdt_cid"),
+      twclid: params.get("twclid"),
+      ScCid: params.get("ScCid"),
+      tblci: params.get("tblci"),
+      dicbo: params.get("dicbo"),
+      nb_cid: params.get("nb_cid"),
+      epik: params.get("epik"),
     };
   } catch {
     return null;
@@ -21,7 +34,19 @@ function parseUrl(urlString: string) {
 }
 
 function hasTrackingParams(data: any): boolean {
-  return data && (data.campaign_id || data.click_id || data.arb_campaign_id || data.network);
+  return (
+    data &&
+    (data.campaign_id ||
+      data.click_id ||
+      data.arb_campaign_id ||
+      data.network ||
+      data.gclid ||
+      data.gbraid ||
+      data.wbraid ||
+      data.ttclid ||
+      data.fbclid ||
+      data.epik)
+  );
 }
 
 // Capture URLs BEFORE redirect happens — this is the key fix
@@ -39,34 +64,82 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "URL_DATA" && sender.tab?.id) {
     const tabId = sender.tab.id;
     const parsed = parseUrl(message.payload);
-    // Only store if we don't already have tracking data for this tab
-    chrome.storage.session.get(`tab_${tabId}`, (result) => {
-      if (!hasTrackingParams(result[`tab_${tabId}`])) {
-        chrome.storage.session.set({ [`tab_${tabId}`]: parsed });
-      }
-    });
+    if (parsed) {
+      chrome.storage.session.get(`tab_${tabId}`, (result) => {
+        const existing = result[`tab_${tabId}`] || {};
+        chrome.storage.session.set({ [`tab_${tabId}`]: { ...existing, ...parsed } });
+      });
+    }
   }
 
   if (message.type === "PAGE_DATA" && sender.tab?.id) {
     const tabId = sender.tab.id;
-    // Merge page data (__dataV3) with existing URL data
     chrome.storage.session.get(`tab_${tabId}`, (result) => {
       const existing = result[`tab_${tabId}`] || {};
-      const merged = { ...existing, ...message.payload };
-      chrome.storage.session.set({ [`tab_${tabId}`]: merged });
+      chrome.storage.session.set({ [`tab_${tabId}`]: { ...existing, ...message.payload } });
+    });
+  }
+
+  if (message.type === "COOKIE_DATA" && sender.tab?.id) {
+    const tabId = sender.tab.id;
+    chrome.storage.session.get(`tab_${tabId}`, (result) => {
+      const existing = (result[`tab_${tabId}`] || {}) as Record<string, unknown>;
+      const fromCookie = message.payload as Record<string, string | null>;
+      const updates: Record<string, string | null> = {};
+      if (fromCookie._epik != null && !existing.epik) updates.epik = fromCookie._epik;
+      if (fromCookie._fbp != null) updates._fbp = fromCookie._fbp;
+      if (fromCookie._fbc != null) updates._fbc = fromCookie._fbc;
+      chrome.storage.session.set({ [`tab_${tabId}`]: { ...existing, ...updates } });
     });
   }
 
   if (message.type === "RELOAD_DATA") {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const tab = tabs[0];
-      if (tab?.id) {
-        chrome.storage.session.get(`tab_${tab.id}`, (result) => {
-          const stored = result[`tab_${tab.id}`];
+      if (!tab?.id) {
+        sendResponse(null);
+        return;
+      }
+      const tabId = tab.id;
+
+      const finishReload = (merged: Record<string, unknown>) => {
+        chrome.storage.session.set({ [`tab_${tabId}`]: merged });
+        sendResponse(merged);
+      };
+
+      const fallbackToStorage = () => {
+        chrome.storage.session.get(`tab_${tabId}`, (result) => {
+          const stored = result[`tab_${tabId}`];
           sendResponse(stored || null);
         });
-      }
+      };
+
+      chrome.tabs.sendMessage(tabId, { type: "GET_PAGE_DATA" }, (pageData) => {
+        if (chrome.runtime.lastError || !pageData) {
+          fallbackToStorage();
+          return;
+        }
+        chrome.storage.session.get(`tab_${tabId}`, (result) => {
+          const existing = (result[`tab_${tabId}`] || {}) as Record<string, unknown>;
+          let merged = { ...existing };
+
+          if (pageData.url) {
+            const parsed = parseUrl(pageData.url);
+            if (parsed) merged = { ...merged, ...parsed };
+          }
+
+          if (pageData.cookies) {
+            const c = pageData.cookies as Record<string, string | null>;
+            if (c._epik != null && !merged.epik) merged.epik = c._epik;
+            if (c._fbp != null) merged._fbp = c._fbp;
+            if (c._fbc != null) merged._fbc = c._fbc;
+          }
+
+          finishReload(merged);
+        });
+      });
     });
+
     return true;
   }
 });

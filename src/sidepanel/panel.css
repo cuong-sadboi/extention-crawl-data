@@ -38,10 +38,10 @@ body.light {
 
 body {
   font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
-  padding: 20px;
+  padding: 12px 14px;
   background: var(--bg);
   color: var(--text);
-  min-width: 320px;
+  min-width: 300px;
   line-height: 1.5;
 }
 
@@ -49,8 +49,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -79,8 +79,8 @@ body {
 }
 
 .icon-btn {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   cursor: pointer;
   background: var(--bg-card);
@@ -100,26 +100,32 @@ body {
   color: var(--accent);
 }
 
+.icon-btn svg {
+  display: block;
+}
+
 .icon-btn .icon-sun {
   display: none;
 }
 
 .icon-btn .icon-moon {
-  display: inline;
+  display: block;
 }
 
 body.light .icon-btn .icon-sun {
-  display: inline;
+  display: block;
 }
 
 body.light .icon-btn .icon-moon {
   display: none;
 }
 
+#reload .icon-reload {
+  flex-shrink: 0;
+}
+
 #reload {
-  width: 36px;
-  height: 36px;
-  padding: 0;
+  padding: 6px 12px;
   cursor: pointer;
   background: var(--bg-card);
   color: var(--text-muted);
@@ -144,14 +150,14 @@ body.light .icon-btn .icon-moon {
 #data {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .field {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 12px;
+  border-radius: 6px;
+  padding: 5px 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -164,6 +170,15 @@ body.light .icon-btn .icon-moon {
   box-shadow: var(--field-hover-shadow);
 }
 
+.field:has(.copy-btn.loading) {
+  opacity: 0.5;
+  transition: opacity 0.25s ease;
+}
+
+.field:has(.copy-btn.loading) .copy-btn.loading {
+  opacity: 1;
+}
+
 .field-info {
   flex: 1;
   min-width: 0;
@@ -173,7 +188,7 @@ body.light .icon-btn .icon-moon {
   font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .field-value {
@@ -191,9 +206,10 @@ body.light .icon-btn .icon-moon {
 
 .copy-btn {
   flex-shrink: 0;
-  width: 24px;
-  height: 28px;
-  padding: 0;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -222,25 +238,22 @@ body.light .icon-btn .icon-moon {
   color: var(--success);
 }
 
-.copy-btn .icon-copy {
-  display: block;
+.copy-btn.loading {
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
-.copy-btn .icon-check {
-  display: none;
+.copy-btn.loading .loading-icon {
+  animation: spin 0.8s linear infinite;
 }
 
-.copy-btn.copied .icon-copy {
-  display: none;
-}
-
-.copy-btn.copied .icon-check {
-  display: block;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .no-data {
   text-align: center;
-  padding: 48px 24px;
+  padding: 32px 16px;
   color: var(--text-muted);
   font-size: 14px;
   background: var(--bg-card);
@@ -252,7 +265,7 @@ body.light .icon-btn .icon-moon {
   font-size: 11px;
   color: var(--text-muted);
   text-align: center;
-  margin-top: 16px;
-  padding-top: 12px;
+  margin-top: 10px;
+  padding-top: 8px;
   border-top: 1px solid var(--border);
 }
