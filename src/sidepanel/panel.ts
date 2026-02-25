@@ -129,11 +129,19 @@ function renderData(data: any) {
 const BACKGROUND_RELOAD_DELAY_MS = 2000;
 
 function loadData(opts?: { silent?: boolean }) {
-  chrome.runtime.sendMessage({ type: "RELOAD_DATA" }, (response) => {
-    renderData(response);
-    if (!opts?.silent && response) {
-      setTimeout(() => loadData({ silent: true }), BACKGROUND_RELOAD_DELAY_MS);
-    }
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const activeTabId = tabs[0]?.id;
+
+    chrome.runtime.sendMessage({ type: "RELOAD_DATA", tabId: activeTabId }, (response) => {
+      if (response == null) {
+        return;
+      }
+
+      renderData(response);
+      if (!opts?.silent) {
+        setTimeout(() => loadData({ silent: true }), BACKGROUND_RELOAD_DELAY_MS);
+      }
+    });
   });
 }
 
@@ -147,6 +155,11 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     // Small delay to let data be captured
     setTimeout(loadData, 500);
   }
+});
+
+// When user switches active tab, reload data for the new tab
+chrome.tabs.onActivated.addListener(() => {
+  loadData();
 });
 
 const THEME_KEY = "url_inspector_theme";
