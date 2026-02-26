@@ -1,4 +1,4 @@
-const COPY_ICON = '<svg class="copy-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+const COPY_ICON = '<svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>';
 const CHECK_ICON = '<svg class="check-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
 const LOADING_ICON = '<svg class="loading-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0110 10" stroke-linecap="round"/></svg>';
 
@@ -18,30 +18,30 @@ function getChangedFieldKeys(prev: Record<string, unknown> | null, next: Record<
 }
 
 const fields = [
-  { key: "rootdomain", label: "Root domain" },
-  { key: "network", label: "Network" },
-  { key: "campaign_id", label: "Campaign id" },
-  { key: "click_id", label: "Click id" },
-  { key: "arb_campaign_id", label: "Arb campaign" },
-  { key: "arbLayoutID", label: "Layout id" },
-  { key: "pubId", label: "Pub id" },
-  { key: "channelId", label: "Channel id" },
-  { key: "styleId", label: "Style id" },
-  { key: "keywords", label: "Keywords" },
-  { key: "gclid", label: "gclid" },
-  { key: "gbraid", label: "gbraid" },
-  { key: "wbraid", label: "wbraid" },
-  { key: "ttclid", label: "ttclid" },
-  { key: "fbclid", label: "fbclid" },
-  { key: "rdt_cid", label: "rdt_cid" },
-  { key: "twclid", label: "twclid" },
-  { key: "ScCid", label: "ScCid" },
-  { key: "tblci", label: "tblci" },
-  { key: "dicbo", label: "dicbo" },
-  { key: "nb_cid", label: "nb_cid" },
-  { key: "epik", label: "epik" },
-  { key: "_fbp", label: "_fbp" },
-  { key: "_fbc", label: "_fbc" },
+  { key: "rootdomain", label: "rootdomain" },
+  { key: "network", label: "network" },
+  { key: "arb_campaign_id", label: "arb_campaign_id" },
+  { key: "campaign_id", label: "campaign_id" },
+  { key: "arbLayoutID", label: "arbLayoutID" },
+  { key: "pubId", label: "pubId" },
+  { key: "channelId", label: "channelId" },
+  { key: "styleId", label: "styleId" },
+  { key: "keywords", label: "keywords" },
+  { key: "click_id", label: "click_id" },
+  { key: "gclid", label: "gclid (Google Click Identifier)" },
+  { key: "gbraid", label: "gbraid (App iOS 14.5 and later)" },
+  { key: "wbraid", label: "wbraid (Web-to-App iOS)" },
+  { key: "ttclid", label: "ttclid (TikTok Click Identifier)" },
+  { key: "fbclid", label: "fbclid (Facebook Click Identifier)" },
+  { key: "rdt_cid", label: "rdt_cid (Reddit Click Identifier)" },
+  { key: "twclid", label: "twclid (Twitter Click Identifier)" },
+  { key: "ScCid", label: "ScCid (Snapchat Click Identifier)" },
+  { key: "tblci", label: "tblci (Taboola Click Identifier)" },
+  { key: "dicbo", label: "dicbo (Outbrain Click Identifier)" },
+  { key: "nb_cid", label: "nb_cid (NewsBreak Click Identifier)" },
+  { key: "epik", label: "epik (Pinterest Click Identifier)" },
+  { key: "_fbp", label: "_fbp (Facebook Browser Pixel)" },
+  { key: "_fbc", label: "_fbc (Facebook Click ID)" },
 ];
 
 function renderData(data: any) {
@@ -170,7 +170,7 @@ function applyTheme(theme: "dark" | "light") {
 
 function initTheme() {
   chrome.storage.local.get(THEME_KEY, (result) => {
-    const theme = (result[THEME_KEY] as "dark" | "light") || "dark";
+    const theme = (result[THEME_KEY] as "dark" | "light") || "light";
     applyTheme(theme);
   });
 }
