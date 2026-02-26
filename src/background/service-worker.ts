@@ -93,6 +93,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
   }
 
+  if (message.type === "STORAGE_DATA" && sender.tab?.id) {
+    const tabId = sender.tab.id;
+    chrome.storage.session.get(`tab_${tabId}`, (result) => {
+      const existing = (result[`tab_${tabId}`] || {}) as Record<string, unknown>;
+      const fromStorage = message.payload as Record<string, string | null>;
+      const updates: Record<string, string | null> = {};
+
+      if (fromStorage.network != null) updates.network = fromStorage.network;
+      if (fromStorage.campaign_id != null) updates.campaign_id = fromStorage.campaign_id;
+      if (fromStorage.arb_campaign_id != null)
+        updates.arb_campaign_id = fromStorage.arb_campaign_id;
+      if (fromStorage.click_id != null) updates.click_id = fromStorage.click_id;
+      if (fromStorage.arbLayoutID != null) updates.arbLayoutID = fromStorage.arbLayoutID;
+
+      chrome.storage.session.set({ [`tab_${tabId}`]: { ...existing, ...updates } });
+    });
+  }
+
   if (message.type === "RELOAD_DATA") {
     const requestedTabId =
       typeof message.tabId === "number" ? (message.tabId as number) : undefined;
@@ -129,6 +147,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if (c._epik != null && !merged.epik) merged.epik = c._epik;
             if (c._fbp != null) merged._fbp = c._fbp;
             if (c._fbc != null) merged._fbc = c._fbc;
+          }
+
+          if (pageData.storage) {
+            const s = pageData.storage as Record<string, string | null>;
+            if (s.network != null) merged.network = s.network;
+            if (s.campaign_id != null) merged.campaign_id = s.campaign_id;
+            if (s.arb_campaign_id != null) merged.arb_campaign_id = s.arb_campaign_id;
+            if (s.click_id != null) merged.click_id = s.click_id;
+            if (s.arbLayoutID != null) merged.arbLayoutID = s.arbLayoutID;
           }
 
           finishReload(merged);
