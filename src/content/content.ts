@@ -33,11 +33,11 @@ function getStorageTracking(): Record<string, string | null> {
       if (arbId && !result.arb_campaign_id) result.arb_campaign_id = arbId;
 
       const click =
-        storage.getItem("click_id") ?? storage.getItem("utm_uid");
+        storage.getItem("click_id");
       if (click && !result.click_id) result.click_id = click;
 
       const layout =
-        storage.getItem("section_id") ?? storage.getItem("layout_id");
+        storage.getItem("layout_id");
       if (layout && !result.arbLayoutID) result.arbLayoutID = layout;
     } catch {
       // ignore storage access errors
