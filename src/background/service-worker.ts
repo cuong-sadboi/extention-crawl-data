@@ -8,10 +8,12 @@ function parseUrl(urlString: string) {
   try {
     const url = new URL(urlString);
     const params = url.searchParams;
+    const arbLayoutID =
+      params.get("arbLayoutID") ?? params.get("layout_id");
     return {
       rootdomain: getRootDomain(url.hostname),
       arb_campaign_id: params.get("arb_campaign_id"),
-      arbLayoutID: params.get("arbLayoutID"),
+      arbLayoutID,
       click_id: params.get("click_id"),
       campaign_id: params.get("campaign_id"),
       network: params.get("network"),
