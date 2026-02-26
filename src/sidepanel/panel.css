@@ -183,7 +183,9 @@ body.light .icon-btn .icon-moon {
 
 .copy-btn {
   flex-shrink: 0;
-  padding: 6px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -201,6 +203,12 @@ body.light .icon-btn .icon-moon {
 .copy-btn svg {
   width: 14px;
   height: 14px;
+}
+
+.copy-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .copy-btn:hover {
