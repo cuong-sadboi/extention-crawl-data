@@ -65,6 +65,7 @@ function parseUrl(urlString: string): TrackingData | null {
       arb_ad_id: params.get("arb_ad_id"),
       utm_source: params.get("utm_source"),
       arb_creative_id: params.get("arb_creative_id"),
+      __bt: params.get("__bt"),
     };
   } catch {
     return null;
