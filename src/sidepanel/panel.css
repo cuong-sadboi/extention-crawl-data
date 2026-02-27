@@ -38,7 +38,7 @@ body.light {
 
 body {
   font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
-  padding: 12px 14px;
+  padding: 10px;
   background: var(--bg);
   color: var(--text);
   min-width: 300px;
@@ -48,7 +48,7 @@ body {
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: end;
   margin-bottom: 12px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--border);
@@ -79,8 +79,8 @@ body {
 }
 
 .icon-btn {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   cursor: pointer;
   background: var(--bg-card);
@@ -166,13 +166,15 @@ body.light .icon-btn .icon-moon {
   font-weight: 600;
   color: var(--text-muted);
   margin-bottom: 2px;
+  line-height: 1;
 }
 
 .field-value {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text);
   word-break: break-all;
   font-weight: 500;
+  line-height: 1.2;
 }
 
 .field-value.empty {
@@ -183,8 +185,8 @@ body.light .icon-btn .icon-moon {
 
 .copy-btn {
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 24px;
   padding: 0;
   display: flex;
   align-items: center;
@@ -201,13 +203,8 @@ body.light .icon-btn .icon-moon {
 }
 
 .copy-btn svg {
-  width: 14px;
-  height: 14px;
-}
-
-.copy-btn svg {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   flex-shrink: 0;
 }
 

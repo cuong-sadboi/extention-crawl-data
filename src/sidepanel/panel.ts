@@ -1,10 +1,44 @@
+interface TrackingData {
+  rootdomain?: string | null;
+  arb_campaign_id?: string | null;
+  arbLayoutID?: string | null;
+  click_id?: string | null;
+  campaign_id?: string | null;
+  network?: string | null;
+  gclid?: string | null;
+  gbraid?: string | null;
+  wbraid?: string | null;
+  ttclid?: string | null;
+  fbclid?: string | null;
+  rdt_cid?: string | null;
+  twclid?: string | null;
+  ScCid?: string | null;
+  tblci?: string | null;
+  dicbo?: string | null;
+  nb_cid?: string | null;
+  epik?: string | null;
+  utm_campaign?: string | null;
+  arb_ad_id?: string | null;
+  utm_source?: string | null;
+  arb_creative_id?: string | null;
+  _fbp?: string | null;
+  _fbc?: string | null;
+  __bt?: string | null;
+  pubId?: string | null;
+  channelId?: string | null;
+  styleId?: string | null;
+  keywords?: string | null;
+  referrerAdCreative?: string | null;
+  [key: string]: string | null | undefined;
+}
+
 const COPY_ICON = '<svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>';
 const CHECK_ICON = '<svg class="check-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
 const LOADING_ICON = '<svg class="loading-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0110 10" stroke-linecap="round"/></svg>';
 
-let prevData: Record<string, unknown> | null = null;
+let prevData: TrackingData | null = null;
 
-function getChangedFieldKeys(prev: Record<string, unknown> | null, next: Record<string, unknown>): string[] {
+function getChangedFieldKeys(prev: TrackingData | null, next: TrackingData): string[] {
   if (!prev) return [];
   const changed: string[] = [];
   for (const f of fields) {
@@ -22,11 +56,16 @@ const fields = [
   { key: "network", label: "network" },
   { key: "arb_campaign_id", label: "arb_campaign_id" },
   { key: "campaign_id", label: "campaign_id" },
+  { key: "utm_campaign", label: "utm_campaign" },
+  { key: "utm_source", label: "utm_source" },
+  { key: "arb_ad_id", label: "arb_ad_id" },
+  { key: "arb_creative_id", label: "arb_creative_id" },
   { key: "arbLayoutID", label: "arbLayoutID" },
   { key: "pubId", label: "pubId" },
   { key: "channelId", label: "channelId" },
   { key: "styleId", label: "styleId" },
   { key: "keywords", label: "keywords" },
+  { key: "referrerAdCreative", label: "referrerAdCreative" },
   { key: "click_id", label: "click_id" },
   { key: "gclid", label: "gclid (Google Click Identifier)" },
   { key: "gbraid", label: "gbraid (App iOS 14.5 and later)" },
@@ -42,9 +81,10 @@ const fields = [
   { key: "epik", label: "epik (Pinterest Click Identifier)" },
   { key: "_fbp", label: "_fbp (Facebook Browser Pixel)" },
   { key: "_fbc", label: "_fbc (Facebook Click ID)" },
+  { key: "__bt", label: "__bt (Bot)" },
 ];
 
-function renderData(data: any) {
+function renderData(data: TrackingData | null) {
   const container = document.getElementById("data")!;
   const status = document.getElementById("status")!;
 
@@ -123,7 +163,7 @@ function renderData(data: any) {
 
   prevData = data;
   const now = new Date().toLocaleTimeString();
-  status.textContent = `Updated at ${now}`;
+  status.textContent = `Last synced at ${now}`;
 }
 
 const BACKGROUND_RELOAD_DELAY_MS = 2000;
@@ -150,17 +190,35 @@ const port = chrome.runtime.connect({ name: "sidepanel" });
 port.onMessage.addListener(renderData);
 
 // Listen for tab updates (auto-refresh when page navigates/reloads)
-chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+function onTabUpdated(tabId: number, changeInfo: { status?: string }) {
   if (changeInfo.status === "complete") {
-    // Small delay to let data be captured
-    setTimeout(loadData, 500);
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.id === tabId) {
+        setTimeout(loadData, 500);
+      }
+    });
+  }
+}
+
+// When user switches active tab, reload data for the new tab
+function onTabActivated() {
+  loadData();
+}
+
+// Track visibility to optimize listeners
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    chrome.tabs.onUpdated.removeListener(onTabUpdated);
+    chrome.tabs.onActivated.removeListener(onTabActivated);
+  } else {
+    chrome.tabs.onUpdated.addListener(onTabUpdated);
+    chrome.tabs.onActivated.addListener(onTabActivated);
+    loadData();
   }
 });
 
-// When user switches active tab, reload data for the new tab
-chrome.tabs.onActivated.addListener(() => {
-  loadData();
-});
+chrome.tabs.onUpdated.addListener(onTabUpdated);
+chrome.tabs.onActivated.addListener(onTabActivated);
 
 const THEME_KEY = "url_inspector_theme";
 

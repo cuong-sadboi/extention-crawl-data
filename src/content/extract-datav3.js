@@ -4,6 +4,14 @@
   var attempts = 0;
   var maxAttempts = 50;
 
+  // Parse URL params once
+  var urlParams;
+  try {
+    urlParams = new URLSearchParams(window.location.search);
+  } catch (e) {
+    urlParams = null;
+  }
+
   function readTrackingFromStorage() {
     var result = {};
 
@@ -31,10 +39,10 @@
 
     try {
       readFrom(window.sessionStorage);
-    } catch (e) {}
+    } catch (e) { }
     try {
       readFrom(window.localStorage);
-    } catch (e) {}
+    } catch (e) { }
 
     return result;
   }
@@ -55,10 +63,19 @@
         payload.channelId = d.channelId || null;
         payload.styleId = d.styleId != null ? String(d.styleId) : null;
         payload.keywords = keywordsStr;
+        payload.referrerAdCreative = d.campaign && d.campaign.fixedAdTitle;
       }
-    } catch (e) {}
+    } catch (e) { }
 
-    // 2) Merge data that the site moved into storage (session/local)
+    // 2) Check refCreative from URL (override referrerAdCreative)
+    try {
+      var refCreative = urlParams && urlParams.get("refCreative");
+      if (refCreative) {
+        payload.referrerAdCreative = refCreative;
+      }
+    } catch (e) { }
+
+    // 3) Merge data that the site moved into storage (session/local)
     try {
       var storageData = readTrackingFromStorage();
       for (var k in storageData) {
@@ -68,7 +85,7 @@
           }
         }
       }
-    } catch (e) {}
+    } catch (e) { }
 
     // If we already have any data, send it to the content script/background.
     if (Object.keys(payload).length > 0) {
