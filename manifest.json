@@ -24,11 +24,5 @@
   ],
   "action": {
     "default_title": "Open URL Inspector"
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["dist/content/extract-datav3.js"],
-      "matches": ["<all_urls>"]
-    }
-  ]
+  }
 }
