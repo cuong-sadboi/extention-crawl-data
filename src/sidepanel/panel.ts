@@ -118,11 +118,17 @@ function renderData(data: TrackingData | null) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
       const safeValue = formatted.replace(/"/g, "&quot;");
+      
+      const isLongField = f.key === "referrerAdCreative" && formatted.length > 100;
+      const valueClass = isLongField ? "field-value truncated" : "field-value";
+      const showMoreBtn = isLongField ? '<button class="show-more-btn" data-field-key="' + f.key + '">Show more</button>' : '';
+      
       return `
         <div class="field" data-field-key="${f.key}">
           <div class="field-info">
             <div class="field-label">${f.label}</div>
-            <div class="field-value">${safeDisplay}</div>
+            <div class="${valueClass}" data-field-key="${f.key}">${safeDisplay}</div>
+            ${showMoreBtn}
           </div>
           <button class="copy-btn" data-value="${safeValue}" data-field-key="${f.key}" title="Copy">${COPY_ICON}</button>
         </div>
@@ -158,6 +164,27 @@ function renderData(data: TrackingData | null) {
           btn.classList.remove("copied");
         }, 1500);
       });
+    });
+  });
+
+  container.querySelectorAll<HTMLButtonElement>(".show-more-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const fieldKey = btn.dataset.fieldKey;
+      if (!fieldKey) return;
+      
+      const valueEl = container.querySelector<HTMLElement>(`.field-value[data-field-key="${fieldKey}"]`);
+      if (!valueEl) return;
+      
+      const isExpanded = valueEl.classList.contains("expanded");
+      if (isExpanded) {
+        valueEl.classList.remove("expanded");
+        valueEl.classList.add("truncated");
+        btn.textContent = "Show more";
+      } else {
+        valueEl.classList.remove("truncated");
+        valueEl.classList.add("expanded");
+        btn.textContent = "Show less";
+      }
     });
   });
 
