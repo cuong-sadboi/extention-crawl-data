@@ -37,6 +37,7 @@ const CHECK_ICON = '<svg class="check-icon" viewBox="0 0 24 24" width="16" heigh
 const LOADING_ICON = '<svg class="loading-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0110 10" stroke-linecap="round"/></svg>';
 
 let prevData: TrackingData | null = null;
+const expandedFields = new Set<string>();
 
 function getChangedFieldKeys(prev: TrackingData | null, next: TrackingData): string[] {
   if (!prev) return [];
@@ -118,11 +119,20 @@ function renderData(data: TrackingData | null) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
       const safeValue = formatted.replace(/"/g, "&quot;");
+      
+      const isLongField = f.key === "referrerAdCreative" && formatted.length > 100;
+      const isExpanded = expandedFields.has(f.key);
+      const valueClass = isLongField 
+        ? (isExpanded ? "field-value expanded" : "field-value truncated") : "field-value";
+      const showMoreBtnText = isExpanded ? "Show less" : "Show more";
+      const showMoreBtn = isLongField ? '<button class="show-more-btn" data-field-key="' + f.key + '">' + showMoreBtnText + '</button>' : '';
+      
       return `
         <div class="field" data-field-key="${f.key}">
           <div class="field-info">
             <div class="field-label">${f.label}</div>
-            <div class="field-value">${safeDisplay}</div>
+            <div class="${valueClass}" data-field-key="${f.key}">${safeDisplay}</div>
+            ${showMoreBtn}
           </div>
           <button class="copy-btn" data-value="${safeValue}" data-field-key="${f.key}" title="Copy">${COPY_ICON}</button>
         </div>
@@ -158,6 +168,29 @@ function renderData(data: TrackingData | null) {
           btn.classList.remove("copied");
         }, 1500);
       });
+    });
+  });
+
+  container.querySelectorAll<HTMLButtonElement>(".show-more-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const fieldKey = btn.dataset.fieldKey;
+      if (!fieldKey) return;
+      
+      const valueEl = container.querySelector<HTMLElement>(`.field-value[data-field-key="${fieldKey}"]`);
+      if (!valueEl) return;
+      
+      const isExpanded = expandedFields.has(fieldKey);
+      if (isExpanded) {
+        expandedFields.delete(fieldKey);
+        valueEl.classList.remove("expanded");
+        valueEl.classList.add("truncated");
+        btn.textContent = "Show more";
+      } else {
+        expandedFields.add(fieldKey);
+        valueEl.classList.remove("truncated");
+        valueEl.classList.add("expanded");
+        btn.textContent = "Show less";
+      }
     });
   });
 
