@@ -415,16 +415,7 @@ async function sha256(str: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// --- Tool Selector ---
-function initToolSelector() {
-  const select = document.getElementById("tool-select") as HTMLSelectElement;
-  const panels = document.querySelectorAll<HTMLElement>(".tool-panel");
-
-  select.addEventListener("change", () => {
-    panels.forEach((p) => p.classList.remove("active"));
-    document.getElementById(`tool-${select.value}`)?.classList.add("active");
-  });
-}
+// --- Tool Selector removed - tools are now individual tabs ---
 
 // --- Bind Tool Inputs ---
 function initToolInputs() {
@@ -487,9 +478,12 @@ function bindInput(inputId: string, resultId: string, transform: (v: string) => 
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   initTabs();
-  initToolSelector();
   initToolInputs();
   loadData();
-  document.getElementById("reload")!.addEventListener("click", () => loadData());
+  document.getElementById("reload")!.addEventListener("click", () => {
+    // Clear all tool textareas
+    document.querySelectorAll<HTMLTextAreaElement>(".tool-input, .tool-result").forEach(el => el.value = "");
+    loadData();
+  });
   document.getElementById("theme-toggle")!.addEventListener("click", toggleTheme);
 });

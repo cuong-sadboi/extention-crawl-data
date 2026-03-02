@@ -5,17 +5,8 @@
   <link rel="stylesheet" href="panel.css" />
 </head>
 <body>
-  <div class="header">
-    <div class="header-actions">
-      <button id="theme-toggle" class="icon-btn" title="Toggle theme">
-        <svg class="icon-sun" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <svg class="icon-moon" viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-      </button>
-      <button id="reload" class="icon-btn" title="Reload data"><svg class="icon-reload" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
-    </div>
-  </div>
-
   <div class="main-layout">
+
   <!-- Main Content Area -->
   <div class="main-content">
 
@@ -25,104 +16,117 @@
     <div id="status" class="status"></div>
   </div>
 
-  <!-- Tools Tab -->
-  <div class="tab-content" id="tab-tools">
-    <div class="tool-selector">
-      <select id="tool-select">
-        <option value="base64">Base64 Encode / Decode</option>
-        <option value="url">URL Encode / Decode</option>
-        <option value="md5">MD5 Hash</option>
-        <option value="sha256">SHA-256 Hash</option>
-        <option value="json">JSON Beautify</option>
-        <option value="vli">VLI Encode / Decode</option>
-      </select>
+  <!-- Base64 Tab -->
+  <div class="tab-content" id="tab-base64">
+    <div class="tool-section">
+      <div class="tool-label">Encode</div>
+      <textarea class="tool-input" id="base64-encode-input" rows="3" placeholder="Enter text to encode..."></textarea>
+      <textarea class="tool-result" id="base64-encode-result" rows="3" placeholder="Result..." readonly></textarea>
     </div>
-
-    <!-- Base64 Tool -->
-    <div class="tool-panel active" id="tool-base64">
-      <div class="tool-section">
-        <div class="tool-label">Encode</div>
-        <textarea class="tool-input" id="base64-encode-input" rows="3" placeholder="Enter text to encode..."></textarea>
-        <textarea class="tool-result" id="base64-encode-result" rows="3" placeholder="Result..." readonly></textarea>
-      </div>
-      <div class="tool-divider"></div>
-      <div class="tool-section">
-        <div class="tool-label">Decode</div>
-        <textarea class="tool-input" id="base64-decode-input" rows="3" placeholder="Enter base64 to decode..."></textarea>
-        <textarea class="tool-result" id="base64-decode-result" rows="3" placeholder="Result..." readonly></textarea>
-      </div>
+    <div class="tool-divider"></div>
+    <div class="tool-section">
+      <div class="tool-label">Decode</div>
+      <textarea class="tool-input" id="base64-decode-input" rows="3" placeholder="Enter base64 to decode..."></textarea>
+      <textarea class="tool-result" id="base64-decode-result" rows="3" placeholder="Result..." readonly></textarea>
     </div>
+  </div>
 
-    <!-- URL Tool -->
-    <div class="tool-panel" id="tool-url">
-      <div class="tool-section">
-        <div class="tool-label">Encode</div>
-        <textarea class="tool-input" id="url-encode-input" rows="3" placeholder="Enter text to encode..."></textarea>
-        <textarea class="tool-result" id="url-encode-result" rows="3" placeholder="Result..." readonly></textarea>
-      </div>
-      <div class="tool-divider"></div>
-      <div class="tool-section">
-        <div class="tool-label">Decode</div>
-        <textarea class="tool-input" id="url-decode-input" rows="3" placeholder="Enter URL-encoded text..."></textarea>
-        <textarea class="tool-result" id="url-decode-result" rows="3" placeholder="Result..." readonly></textarea>
-      </div>
+  <!-- URL Tab -->
+  <div class="tab-content" id="tab-url">
+    <div class="tool-section">
+      <div class="tool-label">Encode</div>
+      <textarea class="tool-input" id="url-encode-input" rows="3" placeholder="Enter text to encode..."></textarea>
+      <textarea class="tool-result" id="url-encode-result" rows="3" placeholder="Result..." readonly></textarea>
     </div>
-
-    <!-- MD5 Tool -->
-    <div class="tool-panel" id="tool-md5">
-      <div class="tool-section">
-        <div class="tool-label">MD5 Hash</div>
-        <textarea class="tool-input" id="md5-input" rows="3" placeholder="Enter text to hash..."></textarea>
-        <textarea class="tool-result" id="md5-result" rows="2" placeholder="Result..." readonly></textarea>
-      </div>
+    <div class="tool-divider"></div>
+    <div class="tool-section">
+      <div class="tool-label">Decode</div>
+      <textarea class="tool-input" id="url-decode-input" rows="3" placeholder="Enter URL-encoded text..."></textarea>
+      <textarea class="tool-result" id="url-decode-result" rows="3" placeholder="Result..." readonly></textarea>
     </div>
+  </div>
 
-    <!-- SHA-256 Tool -->
-    <div class="tool-panel" id="tool-sha256">
-      <div class="tool-section">
-        <div class="tool-label">SHA-256 Hash</div>
-        <textarea class="tool-input" id="sha256-input" rows="3" placeholder="Enter text to hash..."></textarea>
-        <textarea class="tool-result" id="sha256-result" rows="2" placeholder="Result..." readonly></textarea>
-      </div>
+  <!-- MD5 Tab -->
+  <div class="tab-content" id="tab-md5">
+    <div class="tool-section">
+      <div class="tool-label">MD5 Hash</div>
+      <textarea class="tool-input" id="md5-input" rows="3" placeholder="Enter text to hash..."></textarea>
+      <textarea class="tool-result" id="md5-result" rows="2" placeholder="Result..." readonly></textarea>
     </div>
+  </div>
 
-    <!-- JSON Beautify Tool -->
-    <div class="tool-panel" id="tool-json">
-      <div class="tool-section">
-        <div class="tool-label">JSON / JS Beautify</div>
-        <textarea class="tool-input" id="json-input" rows="6" placeholder="Paste JSON or JS here..."></textarea>
-        <textarea class="tool-result" id="json-result" rows="10" placeholder="Formatted result..." readonly></textarea>
-      </div>
+  <!-- SHA-256 Tab -->
+  <div class="tab-content" id="tab-sha256">
+    <div class="tool-section">
+      <div class="tool-label">SHA-256 Hash</div>
+      <textarea class="tool-input" id="sha256-input" rows="3" placeholder="Enter text to hash..."></textarea>
+      <textarea class="tool-result" id="sha256-result" rows="2" placeholder="Result..." readonly></textarea>
     </div>
+  </div>
 
-    <!-- VLI Tool -->
-    <div class="tool-panel" id="tool-vli">
-      <div class="tool-section">
-        <div class="tool-label">Decode VLI Pixel</div>
-        <textarea class="tool-input" id="vli-decode-input" rows="3" placeholder="Enter encoded VLI string..."></textarea>
-        <textarea class="tool-result" id="vli-decode-result" rows="3" placeholder="Decoded result..." readonly></textarea>
-      </div>
-      <div class="tool-divider"></div>
-      <div class="tool-section">
-        <div class="tool-label">Encode VLI Pixel</div>
-        <textarea class="tool-input" id="vli-encode-input" rows="3" placeholder="Enter text to encode..."></textarea>
-        <textarea class="tool-result" id="vli-encode-result" rows="3" placeholder="Encoded result..." readonly></textarea>
-      </div>
+  <!-- JSON Beautify Tab -->
+  <div class="tab-content" id="tab-json">
+    <div class="tool-section">
+      <div class="tool-label">JSON / JS Beautify</div>
+      <textarea class="tool-input" id="json-input" rows="6" placeholder="Paste JSON or JS here..."></textarea>
+      <textarea class="tool-result" id="json-result" rows="10" placeholder="Formatted result..." readonly></textarea>
+    </div>
+  </div>
+
+  <!-- VLI Tab -->
+  <div class="tab-content" id="tab-vli">
+    <div class="tool-section">
+      <div class="tool-label">Decode VLI Pixel</div>
+      <textarea class="tool-input" id="vli-decode-input" rows="3" placeholder="Enter encoded VLI string..."></textarea>
+      <textarea class="tool-result" id="vli-decode-result" rows="3" placeholder="Decoded result..." readonly></textarea>
+    </div>
+    <div class="tool-divider"></div>
+    <div class="tool-section">
+      <div class="tool-label">Encode VLI Pixel</div>
+      <textarea class="tool-input" id="vli-encode-input" rows="3" placeholder="Enter text to encode..."></textarea>
+      <textarea class="tool-result" id="vli-encode-result" rows="3" placeholder="Encoded result..." readonly></textarea>
     </div>
   </div>
 
   </div><!-- end .main-content -->
 
-  <!-- Tab Navigation (Right Sidebar) -->
+  <!-- Right Sidebar Navigation -->
   <div class="tab-nav">
-    <button class="tab-btn active" data-tab="inspector" title="Inspector">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <span class="tab-label">Inspector</span>
-    </button>
-    <button class="tab-btn" data-tab="tools" title="Tools">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-      <span class="tab-label">Tools</span>
-    </button>
+    <!-- Main tabs -->
+    <div class="tab-nav-main">
+      <button class="tab-btn active" data-tab="inspector" title="Inspector">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <div class="tab-nav-divider"></div>
+      <button class="tab-btn" data-tab="base64" title="Base64">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+      </button>
+      <button class="tab-btn" data-tab="url" title="URL Encode/Decode">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      </button>
+      <button class="tab-btn" data-tab="md5" title="MD5 Hash">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </button>
+      <button class="tab-btn" data-tab="sha256" title="SHA-256 Hash">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </button>
+      <button class="tab-btn" data-tab="json" title="JSON Beautify">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 00-2 2v5a2 2 0 01-2 2 2 2 0 012 2v5a2 2 0 002 2h1"/><path d="M16 3h1a2 2 0 012 2v5a2 2 0 002 2 2 2 0 00-2 2v5a2 2 0 01-2 2h-1"/></svg>
+      </button>
+      <button class="tab-btn" data-tab="vli" title="VLI Encode/Decode">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      </button>
+    </div>
+    <!-- Bottom actions -->
+    <div class="tab-nav-bottom">
+      <button id="reload" class="tab-action-btn" title="Reload data">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      </button>
+      <button id="theme-toggle" class="tab-action-btn" title="Toggle theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      </button>
+    </div>
   </div>
 
   </div><!-- end .main-layout -->
