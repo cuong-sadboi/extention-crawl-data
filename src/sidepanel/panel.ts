@@ -1,3 +1,5 @@
+declare function js_beautify(code: string, options?: Record<string, unknown>): string;
+
 interface TrackingData {
   rootdomain?: string | null;
   arb_campaign_id?: string | null;
@@ -446,19 +448,140 @@ function initToolInputs() {
     try { sha256Result.value = await sha256(val); }
     catch (e: any) { sha256Result.value = `Error: ${e.message}`; }
   });
-  // JSON Beautify
+  // JSON / JS Beautify
   bindInput("json-input", "json-result", (v) => {
+    // Try JSON first
     try { return JSON.stringify(JSON.parse(v), null, 2); }
+    catch { /* not valid JSON, try JS beautify */ }
+    // Use js_beautify for JavaScript code
+    try { return js_beautify(v, { indent_size: 4 }); }
     catch { return v; }
   });
-  // VLI decode
-  bindInput("vli-decode-input", "vli-decode-result", (v) => vliDecrypt(v));
-  // VLI encode
-  bindInput("vli-encode-input", "vli-encode-result", (v) => vliEncrypt(v));
+  // VLI decode — also populates the encode URL field & key-value rows
+  const vliDecodeInput = document.getElementById("vli-decode-input") as HTMLTextAreaElement;
+  const vliDecodeResult = document.getElementById("vli-decode-result") as HTMLTextAreaElement;
+  const vliEncodeUrl = document.getElementById("vli-encode-url") as HTMLInputElement;
+  const vliEncodeResult = document.getElementById("vli-encode-result") as HTMLTextAreaElement;
+  const vliKvContainer = document.getElementById("vli-kv-container")!;
+
+  if (vliDecodeInput && vliDecodeResult) {
+    vliDecodeInput.addEventListener("input", () => {
+      const val = vliDecodeInput.value;
+      if (!val) { vliDecodeResult.value = ""; return; }
+      const decoded = vliDecrypt(val);
+      vliDecodeResult.value = decoded;
+      // Also populate the encode section
+      if (vliEncodeUrl) {
+        vliEncodeUrl.value = decoded;
+        vliEncodeUrl.dispatchEvent(new Event("input"));
+      }
+    });
+  }
+
+  // VLI encode — URL input parses into key-value rows
+  let vliBaseUrl = ""; // Store protocol + domain + path (everything before '?')
+
+  function createKvRow(order = "", key = "", val = ""): HTMLDivElement {
+    const row = document.createElement("div");
+    row.className = "vli-kv-row";
+    if (order) row.dataset.order = order;
+    row.innerHTML = `<input type="text" class="vli-kv-key" placeholder="Key..." value="${key}" /><input type="text" class="vli-kv-value" placeholder="Value..." value="${val}" />`;
+    return row;
+  }
+
+  function rebuildQueryFromKv() {
+    const params = new URLSearchParams();
+    vliKvContainer.querySelectorAll<HTMLDivElement>(".vli-kv-row").forEach((row) => {
+      const k = (row.querySelector(".vli-kv-key") as HTMLInputElement)?.value || "";
+      const v = (row.querySelector(".vli-kv-value") as HTMLInputElement)?.value || "";
+      if (k) params.append(k, v);
+    });
+    const qs = params.toString();
+    const fullUrl = vliBaseUrl && qs ? `${vliBaseUrl}?${qs}` : (vliBaseUrl || qs);
+    if (vliEncodeUrl) vliEncodeUrl.value = fullUrl;
+    if (vliEncodeResult) vliEncodeResult.value = fullUrl ? vliEncrypt(fullUrl) : "";
+  }
+
+  function parseUrlToKv(input: string) {
+    vliKvContainer.innerHTML = "";
+    if (!input) {
+      vliBaseUrl = "";
+      vliKvContainer.appendChild(createKvRow("last"));
+      if (vliEncodeResult) vliEncodeResult.value = "";
+      return;
+    }
+
+    // Try to extract query string and base URL from a full URL
+    let queryString = input;
+    vliBaseUrl = "";
+    try {
+      const url = new URL(input);
+      vliBaseUrl = url.origin + url.pathname;
+      queryString = url.search.replace(/^\?/, "");
+    } catch {
+      // If not a valid URL, check if it contains '?'
+      const qIndex = input.indexOf("?");
+      if (qIndex !== -1) {
+        vliBaseUrl = input.substring(0, qIndex);
+        queryString = input.substring(qIndex + 1);
+      }
+    }
+
+    const params = new URLSearchParams(queryString);
+    params.forEach((value, key) => {
+      if (key) vliKvContainer.appendChild(createKvRow("", key, value));
+    });
+    vliKvContainer.appendChild(createKvRow("last"));
+
+    // Encode the full URL (domain + path + query)
+    if (vliEncodeResult) {
+      vliEncodeResult.value = input ? vliEncrypt(input) : "";
+    }
+  }
+
+  if (vliEncodeUrl) {
+    vliEncodeUrl.addEventListener("input", () => {
+      parseUrlToKv(vliEncodeUrl.value);
+    });
+  }
+
+  // Key-value change listener — rebuild query and add new row if needed
+  vliKvContainer?.addEventListener("input", (e) => {
+    const target = e.target as HTMLInputElement;
+    if (!target.classList.contains("vli-kv-key") && !target.classList.contains("vli-kv-value")) return;
+
+    const row = target.closest(".vli-kv-row") as HTMLDivElement;
+    if (row?.dataset.order === "last") {
+      delete row.dataset.order;
+      vliKvContainer.appendChild(createKvRow("last"));
+    }
+    rebuildQueryFromKv();
+  });
 
   // Click on result to copy
   document.querySelectorAll<HTMLTextAreaElement>(".tool-result").forEach((el) => {
     el.addEventListener("focus", () => el.select());
+  });
+
+  // Copy buttons for result textareas
+  const COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>';
+  const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  document.querySelectorAll<HTMLButtonElement>(".result-copy-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.dataset.target;
+      if (!targetId) return;
+      const textarea = document.getElementById(targetId) as HTMLTextAreaElement;
+      if (!textarea || !textarea.value) return;
+      navigator.clipboard.writeText(textarea.value).then(() => {
+        btn.innerHTML = CHECK_SVG;
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.innerHTML = COPY_SVG;
+          btn.classList.remove("copied");
+        }, 1500);
+      });
+    });
   });
 }
 

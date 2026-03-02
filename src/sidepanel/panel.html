@@ -21,13 +21,19 @@
     <div class="tool-section">
       <div class="tool-label">Encode</div>
       <textarea class="tool-input" id="base64-encode-input" rows="3" placeholder="Enter text to encode..."></textarea>
-      <textarea class="tool-result" id="base64-encode-result" rows="3" placeholder="Result..." readonly></textarea>
+      <div class="result-wrapper">
+        <textarea class="tool-result" id="base64-encode-result" rows="3" placeholder="Result..." readonly></textarea>
+        <button class="result-copy-btn" data-target="base64-encode-result" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></button>
+      </div>
     </div>
     <div class="tool-divider"></div>
     <div class="tool-section">
       <div class="tool-label">Decode</div>
       <textarea class="tool-input" id="base64-decode-input" rows="3" placeholder="Enter base64 to decode..."></textarea>
-      <textarea class="tool-result" id="base64-decode-result" rows="3" placeholder="Result..." readonly></textarea>
+      <div class="result-wrapper">
+        <textarea class="tool-result" id="base64-decode-result" rows="3" placeholder="Result..." readonly></textarea>
+        <button class="result-copy-btn" data-target="base64-decode-result" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></button>
+      </div>
     </div>
   </div>
 
@@ -36,13 +42,19 @@
     <div class="tool-section">
       <div class="tool-label">Encode</div>
       <textarea class="tool-input" id="url-encode-input" rows="3" placeholder="Enter text to encode..."></textarea>
-      <textarea class="tool-result" id="url-encode-result" rows="3" placeholder="Result..." readonly></textarea>
+      <div class="result-wrapper">
+        <textarea class="tool-result" id="url-encode-result" rows="3" placeholder="Result..." readonly></textarea>
+        <button class="result-copy-btn" data-target="url-encode-result" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></button>
+      </div>
     </div>
     <div class="tool-divider"></div>
     <div class="tool-section">
       <div class="tool-label">Decode</div>
       <textarea class="tool-input" id="url-decode-input" rows="3" placeholder="Enter URL-encoded text..."></textarea>
-      <textarea class="tool-result" id="url-decode-result" rows="3" placeholder="Result..." readonly></textarea>
+      <div class="result-wrapper">
+        <textarea class="tool-result" id="url-decode-result" rows="3" placeholder="Result..." readonly></textarea>
+        <button class="result-copy-btn" data-target="url-decode-result" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></button>
+      </div>
     </div>
   </div>
 
@@ -51,7 +63,10 @@
     <div class="tool-section">
       <div class="tool-label">MD5 Hash</div>
       <textarea class="tool-input" id="md5-input" rows="3" placeholder="Enter text to hash..."></textarea>
-      <textarea class="tool-result" id="md5-result" rows="2" placeholder="Result..." readonly></textarea>
+      <div class="result-wrapper">
+        <textarea class="tool-result" id="md5-result" rows="2" placeholder="Result..." readonly></textarea>
+        <button class="result-copy-btn" data-target="md5-result" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></button>
+      </div>
     </div>
   </div>
 
@@ -60,7 +75,10 @@
     <div class="tool-section">
       <div class="tool-label">SHA-256 Hash</div>
       <textarea class="tool-input" id="sha256-input" rows="3" placeholder="Enter text to hash..."></textarea>
-      <textarea class="tool-result" id="sha256-result" rows="2" placeholder="Result..." readonly></textarea>
+      <div class="result-wrapper">
+        <textarea class="tool-result" id="sha256-result" rows="2" placeholder="Result..." readonly></textarea>
+        <button class="result-copy-btn" data-target="sha256-result" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></button>
+      </div>
     </div>
   </div>
 
@@ -69,7 +87,10 @@
     <div class="tool-section">
       <div class="tool-label">JSON / JS Beautify</div>
       <textarea class="tool-input" id="json-input" rows="6" placeholder="Paste JSON or JS here..."></textarea>
-      <textarea class="tool-result" id="json-result" rows="10" placeholder="Formatted result..." readonly></textarea>
+      <div class="result-wrapper">
+        <textarea class="tool-result" id="json-result" rows="10" placeholder="Formatted result..." readonly></textarea>
+        <button class="result-copy-btn" data-target="json-result" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></button>
+      </div>
     </div>
   </div>
 
@@ -78,13 +99,25 @@
     <div class="tool-section">
       <div class="tool-label">Decode VLI Pixel</div>
       <textarea class="tool-input" id="vli-decode-input" rows="3" placeholder="Enter encoded VLI string..."></textarea>
-      <textarea class="tool-result" id="vli-decode-result" rows="3" placeholder="Decoded result..." readonly></textarea>
+      <div class="result-wrapper">
+        <textarea class="tool-result" id="vli-decode-result" rows="3" placeholder="Decoded result..." readonly></textarea>
+        <button class="result-copy-btn" data-target="vli-decode-result" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></button>
+      </div>
     </div>
     <div class="tool-divider"></div>
     <div class="tool-section">
       <div class="tool-label">Encode VLI Pixel</div>
-      <textarea class="tool-input" id="vli-encode-input" rows="3" placeholder="Enter text to encode..."></textarea>
-      <textarea class="tool-result" id="vli-encode-result" rows="3" placeholder="Encoded result..." readonly></textarea>
+      <input type="text" class="tool-input" id="vli-encode-url" placeholder="Paste full URL here..." />
+      <div id="vli-kv-container">
+        <div class="vli-kv-row" data-order="last">
+          <input type="text" class="vli-kv-key" placeholder="Key..." />
+          <input type="text" class="vli-kv-value" placeholder="Value..." />
+        </div>
+      </div>
+      <div class="result-wrapper">
+        <textarea class="tool-result" id="vli-encode-result" rows="3" placeholder="Encoded result..." readonly></textarea>
+        <button class="result-copy-btn" data-target="vli-encode-result" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></button>
+      </div>
     </div>
   </div>
 
@@ -131,6 +164,7 @@
 
   </div><!-- end .main-layout -->
 
+  <script src="beautify.min.js"></script>
   <script src="panel.js"></script>
 </body>
 </html>
