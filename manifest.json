@@ -1,8 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "URL Inspector & Dev Tools",
-  "version": "1.1",
-  "description": "URL tracking inspector, encoding/decoding tools, and VLI dev tools",
+  "name": "Interdog DevToolkit: All-in-one developer tools for web debugging",
+  "version": "1.0",
+  "description": "Interdog DevToolkit: All-in-one developer tools for web debugging",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "permissions": ["sidePanel", "activeTab", "scripting", "webNavigation", "storage", "tabs"],
   "background": {
     "service_worker": "dist/background/service-worker.js"
@@ -20,20 +26,15 @@
       "js": ["dist/content/extract-datav3.js"],
       "world": "MAIN",
       "run_at": "document_idle"
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["dist/content/get-github-stars.js"]
     }
   ],
   "action": {
-    "default_title": "Open URL Inspector"
-  },
-  "devtools_page": "dist/devtools/devtools.html",
-  "web_accessible_resources": [
-    {
-      "resources": ["dist/content/extract-datav3.js"],
-      "matches": ["<all_urls>"]
+    "default_title": "Open Interdog DevToolkit",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
     }
-  ]
+  }
 }

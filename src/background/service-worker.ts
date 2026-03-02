@@ -1,10 +1,42 @@
+interface TrackingData {
+  rootdomain?: string | null;
+  arb_campaign_id?: string | null;
+  arbLayoutID?: string | null;
+  click_id?: string | null;
+  campaign_id?: string | null;
+  network?: string | null;
+  gclid?: string | null;
+  gbraid?: string | null;
+  wbraid?: string | null;
+  ttclid?: string | null;
+  fbclid?: string | null;
+  rdt_cid?: string | null;
+  twclid?: string | null;
+  ScCid?: string | null;
+  tblci?: string | null;
+  dicbo?: string | null;
+  nb_cid?: string | null;
+  epik?: string | null;
+  utm_campaign?: string | null;
+  arb_ad_id?: string | null;
+  utm_source?: string | null;
+  arb_creative_id?: string | null;
+  _fbp?: string | null;
+  _fbc?: string | null;
+  pubId?: string | null;
+  channelId?: string | null;
+  styleId?: string | null;
+  keywords?: string | null;
+  referrerAdCreative?: string | null;
+}
+
 function getRootDomain(hostname: string): string {
   const parts = hostname.split(".");
   if (parts.length <= 2) return hostname;
   return parts.slice(-2).join(".");
 }
 
-function parseUrl(urlString: string) {
+function parseUrl(urlString: string): TrackingData | null {
   try {
     const url = new URL(urlString);
     const params = url.searchParams;
@@ -29,14 +61,19 @@ function parseUrl(urlString: string) {
       dicbo: params.get("dicbo"),
       nb_cid: params.get("nb_cid"),
       epik: params.get("epik"),
+      utm_campaign: params.get("utm_campaign"),
+      arb_ad_id: params.get("arb_ad_id"),
+      utm_source: params.get("utm_source"),
+      arb_creative_id: params.get("arb_creative_id"),
+      __bt: params.get("__bt"),
     };
   } catch {
     return null;
   }
 }
 
-function hasTrackingParams(data: any): boolean {
-  return (
+function hasTrackingParams(data: TrackingData | null): boolean {
+  return !!(
     data &&
     (data.campaign_id ||
       data.click_id ||
