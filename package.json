@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && copyfiles -u 1 src/**/*.html src/**/*.css src/content/extract-datav3.js dist"
+    "build": "tsc && copyfiles -u 1 src/**/*.html src/**/*.css src/content/extract-datav3.js src/content/get-github-stars.js src/devtools/devtools.html src/devtools/devtools.js src/devtools/panel.html src/devtools/panel.css src/devtools/panel.js dist"
   },
   "keywords": [],
   "author": "",

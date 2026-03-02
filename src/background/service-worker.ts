@@ -204,4 +204,10 @@ chrome.runtime.onConnect.addListener((port) => {
       }
     });
   }
+
+  if (port.name === "vlitag-panel") {
+    port.onDisconnect.addListener(() => {
+      console.log("Disconnected from VLI DevTools panel.");
+    });
+  }
 });
