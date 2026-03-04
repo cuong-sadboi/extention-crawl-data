@@ -7,6 +7,7 @@ interface TrackingData {
   click_id?: string | null;
   campaign_id?: string | null;
   network?: string | null;
+  query?: string | null;
   gclid?: string | null;
   gbraid?: string | null;
   wbraid?: string | null;
@@ -31,6 +32,7 @@ interface TrackingData {
   styleId?: string | null;
   keywords?: string | null;
   referrerAdCreative?: string | null;
+  landing_page_id?: string | null;
   [key: string]: string | null | undefined;
 }
 
@@ -58,6 +60,7 @@ const fields = [
   { key: "rootdomain", label: "rootdomain" },
   { key: "network", label: "network" },
   { key: "arb_campaign_id", label: "arb_campaign_id" },
+  { key: "landing_page_id", label: "landing_page_id" },
   { key: "campaign_id", label: "campaign_id" },
   { key: "utm_campaign", label: "utm_campaign" },
   { key: "utm_source", label: "utm_source" },
@@ -68,6 +71,7 @@ const fields = [
   { key: "channelId", label: "channelId" },
   { key: "styleId", label: "styleId" },
   { key: "keywords", label: "keywords" },
+  { key: "query", label: "query" },
   { key: "referrerAdCreative", label: "referrerAdCreative" },
   { key: "click_id", label: "click_id" },
   { key: "gclid", label: "gclid (Google Click Identifier)" },
@@ -94,6 +98,7 @@ function renderData(data: TrackingData | null) {
   if (!data) {
     container.innerHTML = '<div class="no-data">No data available</div>';
     status.textContent = "";
+    renderLinks(null);
     return;
   }
 
@@ -105,6 +110,7 @@ function renderData(data: TrackingData | null) {
   if (fieldsWithData.length === 0) {
     container.innerHTML = '<div class="no-data">No data available</div>';
     status.textContent = "";
+    renderLinks(data);
     prevData = data;
     return;
   }
@@ -121,14 +127,14 @@ function renderData(data: TrackingData | null) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
       const safeValue = formatted.replace(/"/g, "&quot;");
-      
+
       const isLongField = f.key === "referrerAdCreative" && formatted.length > 100;
       const isExpanded = expandedFields.has(f.key);
-      const valueClass = isLongField 
+      const valueClass = isLongField
         ? (isExpanded ? "field-value expanded" : "field-value truncated") : "field-value";
       const showMoreBtnText = isExpanded ? "Show less" : "Show more";
       const showMoreBtn = isLongField ? '<button class="show-more-btn" data-field-key="' + f.key + '">' + showMoreBtnText + '</button>' : '';
-      
+
       return `
         <div class="field" data-field-key="${f.key}">
           <div class="field-info">
@@ -177,10 +183,10 @@ function renderData(data: TrackingData | null) {
     btn.addEventListener("click", () => {
       const fieldKey = btn.dataset.fieldKey;
       if (!fieldKey) return;
-      
+
       const valueEl = container.querySelector<HTMLElement>(`.field-value[data-field-key="${fieldKey}"]`);
       if (!valueEl) return;
-      
+
       const isExpanded = expandedFields.has(fieldKey);
       if (isExpanded) {
         expandedFields.delete(fieldKey);
@@ -199,6 +205,102 @@ function renderData(data: TrackingData | null) {
   prevData = data;
   const now = new Date().toLocaleTimeString();
   status.textContent = `Last synced at ${now}`;
+
+  renderLinks(data);
+}
+
+interface LinkItem {
+  label: string;
+  url: string;
+}
+
+interface LinkGroup {
+  title: string;
+  links: LinkItem[];
+}
+
+function generateLinks(data: TrackingData): LinkGroup[] {
+  const groups: LinkGroup[] = [];
+  const arbCampaignId = data.arb_campaign_id;
+  const arbAdId = data.arb_ad_id;
+  const network = data.network || "facebook";
+  const landingPageId = data.landing_page_id;
+  const arbCreativeId = data.arb_creative_id;
+
+  if (arbCampaignId) {
+    const campaignLinks: LinkItem[] = [
+      { label: "Campaign Arb", url: `https://arb.pubpower.io/campaign/${network}/${arbCampaignId}` },
+      { label: "Object Campaign", url: `https://search.findsun.net/camp/v3/6/${arbCampaignId}.js` },
+    ];
+
+    if (arbAdId) {
+      campaignLinks.push({ label: "Object Campaign by Ad", url: `https://search.findsun.net/camp/v3/6/${arbCampaignId}.js?arb_ad_id=${arbAdId}` });
+    }
+
+    groups.push({ title: `Campaign: ${arbCampaignId}`, links: campaignLinks });
+  }
+
+  if (arbCreativeId) {
+    const creativeLinks: LinkItem[] = [
+      { label: "Creative Arb", url: `https://arb.pubpower.io/creative/${arbCreativeId}` },
+    ];
+    groups.push({ title: `Creative: ${arbCreativeId}`, links: creativeLinks });
+  }
+
+  if (landingPageId) {
+    const landingLinks: LinkItem[] = [
+      { label: "Landing Page Arb", url: `https://arb.pubpower.io/landing_page/${landingPageId}` },
+    ];
+    groups.push({ title: `Landing Page: ${landingPageId}`, links: landingLinks });
+  }
+
+  return groups;
+}
+
+function renderLinks(data: TrackingData | null) {
+  const container = document.getElementById("links-data")!;
+
+  if (!data) {
+    container.innerHTML = '<div class="no-data">No links available</div>';
+    return;
+  }
+
+  const groups = generateLinks(data);
+
+  if (groups.length === 0) {
+    container.innerHTML = '<div class="no-data">No links available</div>';
+    return;
+  }
+
+  container.innerHTML = groups.map(group => `
+    <div class="link-group">
+      <div class="link-group-title">${group.title}</div>
+      ${group.links.map(link => `
+        <div class="link-item">
+          <span class="link-label">${link.label}</span>
+          <a href="${link.url}" target="_blank" class="link-url">${link.url}</a>
+          <button class="link-copy-btn" data-url="${link.url}" title="Copy URL">
+            ${COPY_ICON}
+          </button>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  container.querySelectorAll<HTMLButtonElement>(".link-copy-btn").forEach((btn) => {
+    const copyIcon = btn.innerHTML;
+    btn.addEventListener("click", () => {
+      const url = btn.dataset.url || "";
+      navigator.clipboard.writeText(url).then(() => {
+        btn.innerHTML = CHECK_ICON;
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.innerHTML = copyIcon;
+          btn.classList.remove("copied");
+        }, 1500);
+      });
+    });
+  });
 }
 
 const BACKGROUND_RELOAD_DELAY_MS = 2000;
@@ -229,7 +331,10 @@ function onTabUpdated(tabId: number, changeInfo: { status?: string }) {
   if (changeInfo.status === "complete") {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]?.id === tabId) {
-        setTimeout(loadData, 500);
+        setTimeout(() => {
+          loadData();
+          updateVliEncodeUrl();
+        }, 500);
       }
     });
   }
@@ -238,6 +343,20 @@ function onTabUpdated(tabId: number, changeInfo: { status?: string }) {
 // When user switches active tab, reload data for the new tab
 function onTabActivated() {
   loadData();
+  updateVliEncodeUrl();
+}
+
+function updateVliEncodeUrl() {
+  const vliEncodeUrl = document.getElementById("vli-encode-url") as HTMLInputElement;
+  if (vliEncodeUrl) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const url = tabs[0]?.url;
+      if (url && !url.startsWith("chrome://")) {
+        vliEncodeUrl.value = url;
+        vliEncodeUrl.dispatchEvent(new Event("input"));
+      }
+    });
+  }
 }
 
 // Track visibility to optimize listeners
@@ -290,28 +409,45 @@ function initTabs() {
       document.getElementById(`tab-${tabName}`)?.classList.add("active");
     });
   });
+
+  initSubTabs();
+}
+
+function initSubTabs() {
+  const subTabBtns = document.querySelectorAll<HTMLButtonElement>(".sub-tab-btn");
+  const subTabContents = document.querySelectorAll<HTMLElement>(".sub-tab-content");
+
+  subTabBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const subTabName = btn.dataset.subtab;
+      subTabBtns.forEach((b) => b.classList.remove("active"));
+      subTabContents.forEach((c) => c.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(`subtab-${subTabName}`)?.classList.add("active");
+    });
+  });
 }
 
 // ==================== TOOLS FUNCTIONALITY ====================
 
 // --- VLI Cipher Maps ---
 const VLI_ENCODE_MAP: Record<string, string> = {
-  a:'q',b:'w',c:'e',d:'r',e:'t',f:'y',g:'u',h:'i',i:'o',j:'p',
-  k:'0',l:'s',m:'d',n:'f',o:'g',p:'h',q:'j',r:'k',s:'l',t:'z',
-  u:'x',v:'c',w:'v',x:'b',y:'n',z:'m',
-  '0':'A','A':'1','1':'T','T':'2','2':'Y','Y':'3','3':'B','B':'4',
-  '4':'P','P':'5','5':'Z','Z':'6','6':'U','U':'7','7':'K','K':'8',
-  '8':'M','M':'9','9':'a',
-  '&':'R','=':'N','.':'G'
+  a: 'q', b: 'w', c: 'e', d: 'r', e: 't', f: 'y', g: 'u', h: 'i', i: 'o', j: 'p',
+  k: '0', l: 's', m: 'd', n: 'f', o: 'g', p: 'h', q: 'j', r: 'k', s: 'l', t: 'z',
+  u: 'x', v: 'c', w: 'v', x: 'b', y: 'n', z: 'm',
+  '0': 'A', 'A': '1', '1': 'T', 'T': '2', '2': 'Y', 'Y': '3', '3': 'B', 'B': '4',
+  '4': 'P', 'P': '5', '5': 'Z', 'Z': '6', '6': 'U', 'U': '7', '7': 'K', 'K': '8',
+  '8': 'M', 'M': '9', '9': 'a',
+  '&': 'R', '=': 'N', '.': 'G'
 };
 
 const VLI_DECODE_MAP: Record<string, string> = {
-  '0':'k','1':'A','2':'T','3':'Y','4':'B','5':'P','6':'Z','7':'U','8':'K','9':'M',
-  'A':'0','T':'1','Y':'2','B':'3','P':'4','Z':'5','U':'6','K':'7','M':'8',
-  'a':'9','q':'a','w':'b','e':'c','r':'d','t':'e','y':'f','u':'g','i':'h',
-  'o':'i','p':'j','s':'l','d':'m','f':'n','g':'o','h':'p','j':'q','k':'r',
-  'l':'s','z':'t','x':'u','c':'v','v':'w','b':'x','n':'y','m':'z',
-  'R':'&','N':'=','G':'.'
+  '0': 'k', '1': 'A', '2': 'T', '3': 'Y', '4': 'B', '5': 'P', '6': 'Z', '7': 'U', '8': 'K', '9': 'M',
+  'A': '0', 'T': '1', 'Y': '2', 'B': '3', 'P': '4', 'Z': '5', 'U': '6', 'K': '7', 'M': '8',
+  'a': '9', 'q': 'a', 'w': 'b', 'e': 'c', 'r': 'd', 't': 'e', 'y': 'f', 'u': 'g', 'i': 'h',
+  'o': 'i', 'p': 'j', 's': 'l', 'd': 'm', 'f': 'n', 'g': 'o', 'h': 'p', 'j': 'q', 'k': 'r',
+  'l': 's', 'z': 't', 'x': 'u', 'c': 'v', 'v': 'w', 'b': 'x', 'n': 'y', 'm': 'z',
+  'R': '&', 'N': '=', 'G': '.'
 };
 
 function vliEncrypt(str: string): string {
@@ -352,38 +488,38 @@ function md5(str: string): string {
     let a = 1732584193, b = -271733879, c = -1732584194, d = 271733878;
     for (let i = 0; i < x.length; i += 16) {
       const olda = a, oldb = b, oldc = c, oldd = d;
-      a = md5ff(a,b,c,d,x[i]||0,7,-680876936); d = md5ff(d,a,b,c,x[i+1]||0,12,-389564586);
-      c = md5ff(c,d,a,b,x[i+2]||0,17,606105819); b = md5ff(b,c,d,a,x[i+3]||0,22,-1044525330);
-      a = md5ff(a,b,c,d,x[i+4]||0,7,-176418897); d = md5ff(d,a,b,c,x[i+5]||0,12,1200080426);
-      c = md5ff(c,d,a,b,x[i+6]||0,17,-1473231341); b = md5ff(b,c,d,a,x[i+7]||0,22,-45705983);
-      a = md5ff(a,b,c,d,x[i+8]||0,7,1770035416); d = md5ff(d,a,b,c,x[i+9]||0,12,-1958414417);
-      c = md5ff(c,d,a,b,x[i+10]||0,17,-42063); b = md5ff(b,c,d,a,x[i+11]||0,22,-1990404162);
-      a = md5ff(a,b,c,d,x[i+12]||0,7,1804603682); d = md5ff(d,a,b,c,x[i+13]||0,12,-40341101);
-      c = md5ff(c,d,a,b,x[i+14]||0,17,-1502002290); b = md5ff(b,c,d,a,x[i+15]||0,22,1236535329);
-      a = md5gg(a,b,c,d,x[i+1]||0,5,-165796510); d = md5gg(d,a,b,c,x[i+6]||0,9,-1069501632);
-      c = md5gg(c,d,a,b,x[i+11]||0,14,643717713); b = md5gg(b,c,d,a,x[i]||0,20,-373897302);
-      a = md5gg(a,b,c,d,x[i+5]||0,5,-701558691); d = md5gg(d,a,b,c,x[i+10]||0,9,38016083);
-      c = md5gg(c,d,a,b,x[i+15]||0,14,-660478335); b = md5gg(b,c,d,a,x[i+4]||0,20,-405537848);
-      a = md5gg(a,b,c,d,x[i+9]||0,5,568446438); d = md5gg(d,a,b,c,x[i+14]||0,9,-1019803690);
-      c = md5gg(c,d,a,b,x[i+3]||0,14,-187363961); b = md5gg(b,c,d,a,x[i+8]||0,20,1163531501);
-      a = md5gg(a,b,c,d,x[i+13]||0,5,-1444681467); d = md5gg(d,a,b,c,x[i+2]||0,9,-51403784);
-      c = md5gg(c,d,a,b,x[i+7]||0,14,1735328473); b = md5gg(b,c,d,a,x[i+12]||0,20,-1926607734);
-      a = md5hh(a,b,c,d,x[i+5]||0,4,-378558); d = md5hh(d,a,b,c,x[i+8]||0,11,-2022574463);
-      c = md5hh(c,d,a,b,x[i+11]||0,16,1839030562); b = md5hh(b,c,d,a,x[i+14]||0,23,-35309556);
-      a = md5hh(a,b,c,d,x[i+1]||0,4,-1530992060); d = md5hh(d,a,b,c,x[i+4]||0,11,1272893353);
-      c = md5hh(c,d,a,b,x[i+7]||0,16,-155497632); b = md5hh(b,c,d,a,x[i+10]||0,23,-1094730640);
-      a = md5hh(a,b,c,d,x[i+13]||0,4,681279174); d = md5hh(d,a,b,c,x[i]||0,11,-358537222);
-      c = md5hh(c,d,a,b,x[i+3]||0,16,-722521979); b = md5hh(b,c,d,a,x[i+6]||0,23,76029189);
-      a = md5hh(a,b,c,d,x[i+9]||0,4,-640364487); d = md5hh(d,a,b,c,x[i+12]||0,11,-421815835);
-      c = md5hh(c,d,a,b,x[i+15]||0,16,530742520); b = md5hh(b,c,d,a,x[i+2]||0,23,-995338651);
-      a = md5ii(a,b,c,d,x[i]||0,6,-198630844); d = md5ii(d,a,b,c,x[i+7]||0,10,1126891415);
-      c = md5ii(c,d,a,b,x[i+14]||0,15,-1416354905); b = md5ii(b,c,d,a,x[i+5]||0,21,-57434055);
-      a = md5ii(a,b,c,d,x[i+12]||0,6,1700485571); d = md5ii(d,a,b,c,x[i+3]||0,10,-1894986606);
-      c = md5ii(c,d,a,b,x[i+10]||0,15,-1051523); b = md5ii(b,c,d,a,x[i+1]||0,21,-2054922799);
-      a = md5ii(a,b,c,d,x[i+8]||0,6,1873313359); d = md5ii(d,a,b,c,x[i+15]||0,10,-30611744);
-      c = md5ii(c,d,a,b,x[i+6]||0,15,-1560198380); b = md5ii(b,c,d,a,x[i+13]||0,21,1309151649);
-      a = md5ii(a,b,c,d,x[i+4]||0,6,-145523070); d = md5ii(d,a,b,c,x[i+11]||0,10,-1120210379);
-      c = md5ii(c,d,a,b,x[i+2]||0,15,718787259); b = md5ii(b,c,d,a,x[i+9]||0,21,-343485551);
+      a = md5ff(a, b, c, d, x[i] || 0, 7, -680876936); d = md5ff(d, a, b, c, x[i + 1] || 0, 12, -389564586);
+      c = md5ff(c, d, a, b, x[i + 2] || 0, 17, 606105819); b = md5ff(b, c, d, a, x[i + 3] || 0, 22, -1044525330);
+      a = md5ff(a, b, c, d, x[i + 4] || 0, 7, -176418897); d = md5ff(d, a, b, c, x[i + 5] || 0, 12, 1200080426);
+      c = md5ff(c, d, a, b, x[i + 6] || 0, 17, -1473231341); b = md5ff(b, c, d, a, x[i + 7] || 0, 22, -45705983);
+      a = md5ff(a, b, c, d, x[i + 8] || 0, 7, 1770035416); d = md5ff(d, a, b, c, x[i + 9] || 0, 12, -1958414417);
+      c = md5ff(c, d, a, b, x[i + 10] || 0, 17, -42063); b = md5ff(b, c, d, a, x[i + 11] || 0, 22, -1990404162);
+      a = md5ff(a, b, c, d, x[i + 12] || 0, 7, 1804603682); d = md5ff(d, a, b, c, x[i + 13] || 0, 12, -40341101);
+      c = md5ff(c, d, a, b, x[i + 14] || 0, 17, -1502002290); b = md5ff(b, c, d, a, x[i + 15] || 0, 22, 1236535329);
+      a = md5gg(a, b, c, d, x[i + 1] || 0, 5, -165796510); d = md5gg(d, a, b, c, x[i + 6] || 0, 9, -1069501632);
+      c = md5gg(c, d, a, b, x[i + 11] || 0, 14, 643717713); b = md5gg(b, c, d, a, x[i] || 0, 20, -373897302);
+      a = md5gg(a, b, c, d, x[i + 5] || 0, 5, -701558691); d = md5gg(d, a, b, c, x[i + 10] || 0, 9, 38016083);
+      c = md5gg(c, d, a, b, x[i + 15] || 0, 14, -660478335); b = md5gg(b, c, d, a, x[i + 4] || 0, 20, -405537848);
+      a = md5gg(a, b, c, d, x[i + 9] || 0, 5, 568446438); d = md5gg(d, a, b, c, x[i + 14] || 0, 9, -1019803690);
+      c = md5gg(c, d, a, b, x[i + 3] || 0, 14, -187363961); b = md5gg(b, c, d, a, x[i + 8] || 0, 20, 1163531501);
+      a = md5gg(a, b, c, d, x[i + 13] || 0, 5, -1444681467); d = md5gg(d, a, b, c, x[i + 2] || 0, 9, -51403784);
+      c = md5gg(c, d, a, b, x[i + 7] || 0, 14, 1735328473); b = md5gg(b, c, d, a, x[i + 12] || 0, 20, -1926607734);
+      a = md5hh(a, b, c, d, x[i + 5] || 0, 4, -378558); d = md5hh(d, a, b, c, x[i + 8] || 0, 11, -2022574463);
+      c = md5hh(c, d, a, b, x[i + 11] || 0, 16, 1839030562); b = md5hh(b, c, d, a, x[i + 14] || 0, 23, -35309556);
+      a = md5hh(a, b, c, d, x[i + 1] || 0, 4, -1530992060); d = md5hh(d, a, b, c, x[i + 4] || 0, 11, 1272893353);
+      c = md5hh(c, d, a, b, x[i + 7] || 0, 16, -155497632); b = md5hh(b, c, d, a, x[i + 10] || 0, 23, -1094730640);
+      a = md5hh(a, b, c, d, x[i + 13] || 0, 4, 681279174); d = md5hh(d, a, b, c, x[i] || 0, 11, -358537222);
+      c = md5hh(c, d, a, b, x[i + 3] || 0, 16, -722521979); b = md5hh(b, c, d, a, x[i + 6] || 0, 23, 76029189);
+      a = md5hh(a, b, c, d, x[i + 9] || 0, 4, -640364487); d = md5hh(d, a, b, c, x[i + 12] || 0, 11, -421815835);
+      c = md5hh(c, d, a, b, x[i + 15] || 0, 16, 530742520); b = md5hh(b, c, d, a, x[i + 2] || 0, 23, -995338651);
+      a = md5ii(a, b, c, d, x[i] || 0, 6, -198630844); d = md5ii(d, a, b, c, x[i + 7] || 0, 10, 1126891415);
+      c = md5ii(c, d, a, b, x[i + 14] || 0, 15, -1416354905); b = md5ii(b, c, d, a, x[i + 5] || 0, 21, -57434055);
+      a = md5ii(a, b, c, d, x[i + 12] || 0, 6, 1700485571); d = md5ii(d, a, b, c, x[i + 3] || 0, 10, -1894986606);
+      c = md5ii(c, d, a, b, x[i + 10] || 0, 15, -1051523); b = md5ii(b, c, d, a, x[i + 1] || 0, 21, -2054922799);
+      a = md5ii(a, b, c, d, x[i + 8] || 0, 6, 1873313359); d = md5ii(d, a, b, c, x[i + 15] || 0, 10, -30611744);
+      c = md5ii(c, d, a, b, x[i + 6] || 0, 15, -1560198380); b = md5ii(b, c, d, a, x[i + 13] || 0, 21, 1309151649);
+      a = md5ii(a, b, c, d, x[i + 4] || 0, 6, -145523070); d = md5ii(d, a, b, c, x[i + 11] || 0, 10, -1120210379);
+      c = md5ii(c, d, a, b, x[i + 2] || 0, 15, 718787259); b = md5ii(b, c, d, a, x[i + 9] || 0, 21, -343485551);
       a = safeAdd(a, olda); b = safeAdd(b, oldb); c = safeAdd(c, oldc); d = safeAdd(d, oldd);
     }
     return [a, b, c, d];
@@ -401,7 +537,7 @@ function md5(str: string): string {
     let str = '';
     for (let i = 0; i < binarray.length * 4; i++) {
       str += hexTab.charAt(((binarray[i >> 2] ?? 0) >> ((i % 4) * 8 + 4)) & 0xf) +
-             hexTab.charAt(((binarray[i >> 2] ?? 0) >> ((i % 4) * 8)) & 0xf);
+        hexTab.charAt(((binarray[i >> 2] ?? 0) >> ((i % 4) * 8)) & 0xf);
     }
     return str;
   }
@@ -598,10 +734,15 @@ function bindInput(inputId: string, resultId: string, transform: (v: string) => 
 
 // ==================== INIT ====================
 
+function initVliEncodeUrl() {
+  updateVliEncodeUrl();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   initTabs();
   initToolInputs();
+  initVliEncodeUrl();
   loadData();
   document.getElementById("reload")!.addEventListener("click", () => {
     // Clear all tool textareas
