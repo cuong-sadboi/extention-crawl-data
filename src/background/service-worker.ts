@@ -28,6 +28,7 @@ interface TrackingData {
   styleId?: string | null;
   keywords?: string | null;
   referrerAdCreative?: string | null;
+  relatedSearches?: { text: string; href: string }[] | null;
 }
 
 function getRootDomain(hostname: string): string {
@@ -148,6 +149,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
 
       chrome.storage.session.set({ [`tab_${tabId}`]: { ...existing, ...updates } });
+    });
+  }
+
+  // Handle related searches extracted from Google iframes
+  if (message.type === "IFRAME_RELATED_SEARCHES" && sender.tab?.id) {
+    const tabId = sender.tab.id;
+    chrome.storage.session.get(`tab_${tabId}`, (result) => {
+      const existing = (result[`tab_${tabId}`] || {}) as Record<string, unknown>;
+      const existingSearches = (existing.relatedSearches as { text: string; href: string }[]) || [];
+      const newSearches = (message.payload?.searches || []) as { text: string; href: string }[];
+
+      // Merge & deduplicate by text
+      const merged = [...existingSearches];
+      const existingTexts = new Set(existingSearches.map((s: { text: string }) => s.text.toLowerCase()));
+      for (const s of newSearches) {
+        if (!existingTexts.has(s.text.toLowerCase())) {
+          merged.push(s);
+          existingTexts.add(s.text.toLowerCase());
+        }
+      }
+
+      chrome.storage.session.set({
+        [`tab_${tabId}`]: { ...existing, relatedSearches: merged },
+      });
     });
   }
 

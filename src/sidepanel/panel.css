@@ -791,3 +791,147 @@ body.light #vli-encode-url:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+/* ==================== RELATED SEARCHES (from Google iframes) ==================== */
+
+.rs-section {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.rs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+
+.rs-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rs-count {
+  font-weight: 500;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.rs-copy-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.rs-copy-all-btn:hover {
+  background: var(--bg-card);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.rs-copy-all-btn.copied {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.rs-copy-all-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.rs-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.rs-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+
+.rs-item:last-child {
+  border-bottom: none;
+}
+
+.rs-item:hover {
+  background: rgba(88, 166, 255, 0.04);
+}
+
+body.light .rs-item:hover {
+  background: rgba(9, 105, 218, 0.04);
+}
+
+.rs-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.rs-copy-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.rs-item:hover .rs-copy-btn {
+  opacity: 1;
+  border-color: var(--border);
+}
+
+.rs-copy-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.rs-copy-btn.copied {
+  opacity: 1;
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.rs-copy-btn svg {
+  width: 11px;
+  height: 11px;
+}

@@ -183,6 +183,24 @@
         </div>
       </div>
 
+      <!-- Related Searches Tab (from Google iframes) -->
+      <div class="tab-content" id="tab-rs">
+        <div id="rs-section" class="rs-section" style="display:none;">
+          <div class="rs-header">
+            <div class="rs-title">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Related Searches <span id="rs-count" class="rs-count"></span>
+            </div>
+            <button id="rs-copy-all" class="rs-copy-all-btn" title="Copy all">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+            </button>
+          </div>
+          <div id="rs-list" class="rs-list"></div>
+        </div>
+        <div id="rs-empty" class="no-data">No related searches found.<br><span style="font-size:11px;color:var(--text-muted)">This page may not have Google iframe widgets.</span></div>
+        <div id="rs-status" class="status"></div>
+      </div>
+
     </div><!-- end .main-content -->
 
     <!-- Right Sidebar Navigation -->
@@ -265,6 +283,17 @@
         </button>
         <button class="tab-btn" data-tab="vli" title="VLI Encode/Decode">
           <img width="20px" src="https://re.valueimpression.com/themes/atlantis/assets/img/favicon.png" />
+        </button>
+        <div class="tab-nav-divider"></div>
+        <button class="tab-btn" data-tab="rs" title="Related Searches">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10" cy="10" r="7"/>
+            <path d="M21 21l-5-5"/>
+            <path d="M7 10h6"/>
+            <path d="M10 7v6"/>
+            <line x1="3" y1="18" x2="6" y2="18"/>
+            <line x1="3" y1="21" x2="8" y2="21"/>
+          </svg>
         </button>
       </div>
       <!-- Bottom actions -->
