@@ -38,90 +38,29 @@ body.light {
 
 body {
   font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
-  padding: 10px;
+  padding: 0;
   background: var(--bg);
   color: var(--text);
   min-width: 300px;
   line-height: 1.5;
+  overflow: hidden;
+  height: 100vh;
 }
 
-.header {
+/* ==================== MAIN LAYOUT ==================== */
+
+.main-layout {
   display: flex;
-  align-items: center;
-  justify-content: end;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
+  height: 100vh;
 }
 
-.header h2 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.02em;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.header h2::before {
-  content: "";
-  width: 6px;
-  height: 20px;
-  background: linear-gradient(180deg, var(--accent), #a371f7);
-  border-radius: 3px;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.icon-btn {
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  cursor: pointer;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: var(--text-muted);
-  transition: all 0.2s ease;
-}
-
-.icon-btn:hover {
-  background: var(--bg-elevated);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.icon-btn svg {
-  display: block;
-}
-
-.icon-btn .icon-sun {
-  display: none;
-}
-
-.icon-btn .icon-moon {
-  display: block;
-}
-
-body.light .icon-btn .icon-sun {
-  display: block;
-}
-
-body.light .icon-btn .icon-moon {
-  display: none;
-}
-
-.icon-btn:active {
-  transform: scale(0.98);
+.main-content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 12px;
+  padding-top: 35px;
+  padding-bottom: 20px;
 }
 
 #data {
@@ -260,7 +199,9 @@ body.light .icon-btn .icon-moon {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .no-data {
@@ -273,11 +214,580 @@ body.light .icon-btn .icon-moon {
   border-radius: 12px;
 }
 
+.tab-content.active {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 70px);
+}
+
+.tab-content .tool-section:last-of-type {
+  flex: 1;
+}
+
+#tab-inspector #data {
+  flex: 1;
+}
+
 .status {
   font-size: 11px;
   color: var(--text-muted);
   text-align: center;
-  margin-top: 10px;
+  margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid var(--border);
+}
+
+/* ==================== SUB-TABS (Inside Inspector) ==================== */
+
+.sub-tabs {
+  display: flex;
+  gap: 0;
+  margin: 0 0 12px 0;
+  border-bottom: 2px solid var(--border);
+  position: relative;
+}
+
+.sub-tab-btn {
+  position: relative;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sub-tab-btn::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+
+.sub-tab-btn:hover {
+  color: var(--text);
+}
+
+.sub-tab-btn.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.sub-tab-btn.active::after {
+  background: var(--accent);
+}
+
+.sub-tab-content {
+  display: none;
+}
+
+.sub-tab-content.active {
+  display: block;
+}
+
+/* ==================== LINKS TAB ==================== */
+
+.links-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.link-group {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.link-group-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.link-group-title::before {
+  content: "";
+  width: 3px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.link-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.link-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.link-item:first-of-type {
+  padding-top: 0;
+}
+
+.link-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.link-url {
+  flex: 1;
+  font-size: 11px;
+  color: var(--accent);
+  text-decoration: none;
+  word-break: break-all;
+  transition: color 0.2s ease;
+}
+
+.link-url:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+.link-copy-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.link-copy-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.link-copy-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.link-copy-btn.copied {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+/* ==================== TAB NAVIGATION (Right Sidebar - Sider Style) ==================== */
+
+.tab-nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--bg-elevated);
+  border-left: 1px solid var(--border);
+  width: 46px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.tab-nav-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 0;
+}
+
+.tab-nav-divider {
+  width: 24px;
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+.tab-nav-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+
+/* --- Tab Buttons (main navigation) --- */
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.tab-btn::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 3px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 3px 0 0 3px;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-btn:hover {
+  color: var(--accent);
+  background: rgba(88, 166, 255, 0.08);
+}
+
+body.light .tab-btn:not(.active):hover {
+  background: rgba(9, 105, 218, 0.06);
+}
+
+.tab-btn:active {
+  transform: scale(0.92);
+}
+
+.tab-btn.active {
+  color: #ffffff;
+  background: var(--accent);
+  box-shadow: 0 2px 8px rgba(88, 166, 255, 0.3);
+}
+
+.tab-btn.active::after {
+  transform: translateY(-50%) scaleY(1);
+}
+
+body.light .tab-btn.active {
+  box-shadow: 0 2px 8px rgba(9, 105, 218, 0.25);
+}
+
+.tab-btn svg {
+  flex-shrink: 0;
+  display: block;
+}
+
+.tab-btn svg path,
+.tab-btn svg g {
+  fill: currentColor;
+  transition: fill 0.2s ease;
+}
+
+.tab-btn img {
+  transition: filter 0.2s ease, opacity 0.2s ease;
+  opacity: 0.6;
+}
+
+.tab-btn:hover img {
+  opacity: 1;
+  filter: drop-shadow(0 0 2px var(--accent));
+}
+
+.tab-btn.active img {
+  opacity: 1;
+  filter: brightness(0) invert(1);
+}
+
+/* --- Action Buttons (reload, theme) --- */
+
+.tab-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-action-btn:hover {
+  color: var(--accent);
+  background: rgba(88, 166, 255, 0.08);
+}
+
+body.light .tab-action-btn:hover {
+  background: rgba(9, 105, 218, 0.06);
+}
+
+.tab-action-btn:active {
+  transform: scale(0.9);
+}
+
+.tab-action-btn svg {
+  display: block;
+}
+
+.tab-action-btn svg path,
+.tab-action-btn svg g {
+  fill: currentColor;
+  transition: fill 0.2s ease;
+}
+
+/* Theme toggle icon visibility */
+.tab-action-btn .icon-sun {
+  display: none;
+}
+
+.tab-action-btn .icon-moon {
+  display: block;
+}
+
+body.light .tab-action-btn .icon-sun {
+  display: block;
+}
+
+body.light .tab-action-btn .icon-moon {
+  display: none;
+}
+
+/* ==================== TAB CONTENT ==================== */
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== TOOLS ==================== */
+
+.tool-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tool-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tool-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0;
+}
+
+.tool-input,
+.tool-result {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: 'DM Sans', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tool-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+}
+
+body.light .tool-input:focus {
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.08);
+}
+
+.tool-result {
+  border-style: dashed;
+  cursor: pointer;
+}
+
+.tool-result:focus {
+  border-color: var(--success);
+  box-shadow: 0 0 0 3px var(--success-bg);
+}
+
+/* ==================== RESULT COPY BUTTON ==================== */
+
+.result-wrapper {
+  position: relative;
+}
+
+.result-copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  z-index: 1;
+  padding: 0;
+}
+
+.result-copy-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.result-wrapper:hover .result-copy-btn,
+.result-copy-btn:focus {
+  opacity: 1;
+}
+
+.result-copy-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.result-copy-btn.copied {
+  opacity: 1;
+  background: var(--success);
+  color: #fff;
+  border-color: var(--success);
+}
+
+/* ==================== VLI KEY-VALUE ROWS ==================== */
+
+#vli-kv-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.vli-kv-row {
+  display: flex;
+  gap: 6px;
+}
+
+.vli-kv-key,
+.vli-kv-value {
+  padding: 8px 10px;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: 'DM Sans', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vli-kv-key {
+  width: 35%;
+  flex-shrink: 0;
+}
+
+.vli-kv-value {
+  flex: 1;
+}
+
+.vli-kv-key:focus,
+.vli-kv-value:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.1);
+}
+
+body.light .vli-kv-key:focus,
+body.light .vli-kv-value:focus {
+  box-shadow: 0 0 0 2px rgba(9, 105, 218, 0.08);
+}
+
+#vli-encode-url {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: 'DM Sans', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#vli-encode-url:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+}
+
+body.light #vli-encode-url:focus {
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.08);
+}
+
+/* ==================== SCROLLBAR ==================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }

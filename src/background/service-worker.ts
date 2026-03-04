@@ -47,6 +47,7 @@ function parseUrl(urlString: string): TrackingData | null {
       arb_campaign_id: params.get("arb_campaign_id"),
       arbLayoutID,
       click_id: params.get("click_id"),
+      query: params.get("query"),
       campaign_id: params.get("campaign_id"),
       network: params.get("network"),
       gclid: params.get("gclid"),
@@ -139,12 +140,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const fromStorage = message.payload as Record<string, string | null>;
       const updates: Record<string, string | null> = {};
 
-      if (fromStorage.network != null) updates.network = fromStorage.network;
-      if (fromStorage.campaign_id != null) updates.campaign_id = fromStorage.campaign_id;
-      if (fromStorage.arb_campaign_id != null)
-        updates.arb_campaign_id = fromStorage.arb_campaign_id;
-      if (fromStorage.click_id != null) updates.click_id = fromStorage.click_id;
-      if (fromStorage.arbLayoutID != null) updates.arbLayoutID = fromStorage.arbLayoutID;
+      // Only update fields that don't exist in URL data (existing)
+      for (const key of Object.keys(fromStorage)) {
+        if (fromStorage[key] != null && existing[key] == null) {
+          updates[key] = fromStorage[key];
+        }
+      }
 
       chrome.storage.session.set({ [`tab_${tabId}`]: { ...existing, ...updates } });
     });
@@ -190,11 +191,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
           if (pageData.storage) {
             const s = pageData.storage as Record<string, string | null>;
-            if (s.network != null) merged.network = s.network;
-            if (s.campaign_id != null) merged.campaign_id = s.campaign_id;
-            if (s.arb_campaign_id != null) merged.arb_campaign_id = s.arb_campaign_id;
-            if (s.click_id != null) merged.click_id = s.click_id;
-            if (s.arbLayoutID != null) merged.arbLayoutID = s.arbLayoutID;
+            // Merge storage data - only fill in missing fields
+            for (const key of Object.keys(s)) {
+              if (s[key] != null && merged[key] == null) {
+                merged[key] = s[key];
+              }
+            }
           }
 
           finishReload(merged);
@@ -219,15 +221,39 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-// Open side panel when clicking the extension icon
-chrome.action.onClicked.addListener((tab) => {
-  if (tab.id) {
+// Track side panel state per window
+const sidePanelOpen = new Map<number, boolean>();
+
+// Toggle side panel when clicking the extension icon
+chrome.action.onClicked.addListener(async (tab) => {
+  if (!tab.id || !tab.windowId) return;
+
+  const isOpen = sidePanelOpen.get(tab.windowId) || false;
+
+  if (isOpen) {
+    // Close by disabling then re-enabling
+    await chrome.sidePanel.setOptions({ enabled: false });
+    await chrome.sidePanel.setOptions({ enabled: true, path: "dist/sidepanel/panel.html" });
+    sidePanelOpen.set(tab.windowId, false);
+  } else {
     chrome.sidePanel.open({ tabId: tab.id });
+    sidePanelOpen.set(tab.windowId, true);
   }
 });
 
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === "sidepanel") {
+    // Track side panel open state
+    chrome.windows.getCurrent((win) => {
+      if (win.id) sidePanelOpen.set(win.id, true);
+    });
+
+    port.onDisconnect.addListener(() => {
+      chrome.windows.getCurrent((win) => {
+        if (win.id) sidePanelOpen.set(win.id, false);
+      });
+    });
+
     // Get data for the active tab from storage
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const tab = tabs[0];
@@ -239,6 +265,12 @@ chrome.runtime.onConnect.addListener((port) => {
       } else {
         port.postMessage(null);
       }
+    });
+  }
+
+  if (port.name === "vlitag-panel") {
+    port.onDisconnect.addListener(() => {
+      console.log("Disconnected from VLI DevTools panel.");
     });
   }
 });

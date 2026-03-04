@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>VLI Network Monitor</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <div class="header">
+    <h1>VLI Network Monitor</h1>
+    <div class="controls">
+      <button id="clear-btn" class="btn">Clear</button>
+    </div>
+  </div>
+  <div class="table-container">
+    <table class="network-table">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Status</th>
+          <th>Type</th>
+          <th>URL</th>
+          <th>Host</th>
+          <th>Path</th>
+          <th>Query</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="request-list"></tbody>
+    </table>
+  </div>
+  <script src="panel.js"></script>
+</body>
+</html>

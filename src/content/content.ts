@@ -11,32 +11,50 @@ function getCookieData(): Record<string, string | null> {
   };
 }
 
+const STORAGE_KEYS = [
+  "network",
+  "campaign_id",
+  "arb_campaign_id",
+  "click_id",
+  "arbLayoutID",
+  "layout_id",
+  "section_id",
+  "gclid",
+  "gbraid",
+  "wbraid",
+  "ttclid",
+  "fbclid",
+  "rdt_cid",
+  "twclid",
+  "ScCid",
+  "tblci",
+  "dicbo",
+  "nb_cid",
+  "epik",
+  "utm_campaign",
+  "utm_source",
+  "arb_ad_id",
+  "arb_creative_id",
+];
+
 function getStorageTracking(): Record<string, string | null> {
-  const result: Record<string, string | null> = {
-    network: null,
-    campaign_id: null,
-    arb_campaign_id: null,
-    click_id: null,
-    arbLayoutID: null,
-  };
+  const result: Record<string, string | null> = {};
 
   const readFrom = (storage: Storage | null) => {
     if (!storage) return;
     try {
-      const n = storage.getItem("network");
-      if (n && !result.network) result.network = n;
-
-      const cId = storage.getItem("campaign_id");
-      if (cId && !result.campaign_id) result.campaign_id = cId;
-
-      const arbId = storage.getItem("arb_campaign_id");
-      if (arbId && !result.arb_campaign_id) result.arb_campaign_id = arbId;
-
-      const click =
-        storage.getItem("click_id") ?? "";
-      if (click && !result.click_id) result.click_id = click;
-      const layout = storage.getItem("layout_id") ?? "";
-      if (layout && !result.arbLayoutID) result.arbLayoutID = layout;
+      for (const key of STORAGE_KEYS) {
+        const value = storage.getItem(key);
+        if (value && !result[key]) {
+          result[key] = value;
+        }
+      }
+      
+      // Map section_id/layout_id to arbLayoutID
+      if (!result.arbLayoutID) {
+        const layoutId = storage.getItem("section_id") ?? storage.getItem("layout_id");
+        if (layoutId) result.arbLayoutID = layoutId;
+      }
     } catch {
       // ignore storage access errors
     }
@@ -44,10 +62,10 @@ function getStorageTracking(): Record<string, string | null> {
 
   try {
     readFrom(window.sessionStorage);
-  } catch {}
+  } catch { }
   try {
     readFrom(window.localStorage);
-  } catch {}
+  } catch { }
 
   return result;
 }
