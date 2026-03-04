@@ -232,11 +232,11 @@ function generateLinks(data: TrackingData): LinkGroup[] {
   if (arbCampaignId) {
     const campaignLinks: LinkItem[] = [
       { label: "Campaign Arb", url: `https://arb.pubpower.io/campaign/${network}/${arbCampaignId}` },
-      { label: "Object Campaign", url: `https://search.findsun.net/camp/v3/6/${arbCampaignId}.js` },
+      { label: "Object v3", url: `https://search.findsun.net/camp/v3/6/${arbCampaignId}.js` },
     ];
 
     if (arbAdId) {
-      campaignLinks.push({ label: "Object Campaign by Ad", url: `https://search.findsun.net/camp/v3/6/${arbCampaignId}.js?arb_ad_id=${arbAdId}` });
+      campaignLinks.push({ label: "Object v3 by Ad", url: `https://search.findsun.net/camp/v3/6/${arbCampaignId}.js?arb_ad_id=${arbAdId}` });
     }
 
     groups.push({ title: `Campaign: ${arbCampaignId}`, links: campaignLinks });
@@ -618,11 +618,211 @@ function md5(str: string): string {
 }
 
 // --- SHA-256 (Web Crypto API) ---
-async function sha256(str: string): Promise<string> {
+async function computeHash(str: string, algorithm: string): Promise<string> {
   const msgBuffer = new TextEncoder().encode(str);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashBuffer = await crypto.subtle.digest(algorithm, msgBuffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function computeAllHashes(str: string) {
+  const md5Result = document.getElementById("hash-md5") as HTMLInputElement;
+  const sha1Result = document.getElementById("hash-sha1") as HTMLInputElement;
+  const sha256Result = document.getElementById("hash-sha256") as HTMLInputElement;
+  const sha384Result = document.getElementById("hash-sha384") as HTMLInputElement;
+  const sha512Result = document.getElementById("hash-sha512") as HTMLInputElement;
+
+  if (!str) {
+    md5Result.value = "";
+    sha1Result.value = "";
+    sha256Result.value = "";
+    sha384Result.value = "";
+    sha512Result.value = "";
+    return;
+  }
+
+  md5Result.value = md5(str);
+
+  try {
+    const [sha1, sha256, sha384, sha512] = await Promise.all([
+      computeHash(str, 'SHA-1'),
+      computeHash(str, 'SHA-256'),
+      computeHash(str, 'SHA-384'),
+      computeHash(str, 'SHA-512'),
+    ]);
+    sha1Result.value = sha1;
+    sha256Result.value = sha256;
+    sha384Result.value = sha384;
+    sha512Result.value = sha512;
+  } catch (e: any) {
+    sha1Result.value = `Error: ${e.message}`;
+    sha256Result.value = `Error: ${e.message}`;
+    sha384Result.value = `Error: ${e.message}`;
+    sha512Result.value = `Error: ${e.message}`;
+  }
+}
+
+// --- Epoch Converter ---
+const EPOCH_TZ_OFFSETS: Record<string, string> = {
+  GMT: "Z",
+  UTC: "Z",
+  "Asia/Ho_Chi_Minh": "+07:00",
+  "America/New_York": "-05:00",
+  "America/Los_Angeles": "-08:00",
+  "Europe/London": "+00:00",
+  "Asia/Tokyo": "+09:00",
+  "Asia/Singapore": "+08:00",
+};
+
+function initEpochConverter() {
+  const epochCurrentEl = document.getElementById("epoch-current") as HTMLInputElement;
+  const epochToDateInput = document.getElementById("epoch-to-date-input") as HTMLInputElement;
+
+  const epochLocalEl = document.getElementById("epoch-local") as HTMLInputElement;
+  const epochUtcEl = document.getElementById("epoch-utc") as HTMLInputElement;
+  const epochIsoEl = document.getElementById("epoch-iso") as HTMLInputElement;
+  const dateEpochSecondsEl = document.getElementById("date-epoch-seconds") as HTMLInputElement;
+  const dateEpochMsEl = document.getElementById("date-epoch-ms") as HTMLInputElement;
+
+  const epochYr = document.getElementById("epoch-yr") as HTMLInputElement;
+  const epochMon = document.getElementById("epoch-mon") as HTMLInputElement;
+  const epochDay = document.getElementById("epoch-day") as HTMLInputElement;
+  const epochHr = document.getElementById("epoch-hr") as HTMLInputElement;
+  const epochMin = document.getElementById("epoch-min") as HTMLInputElement;
+  const epochSec = document.getElementById("epoch-sec") as HTMLInputElement;
+  const epochTz = document.getElementById("epoch-tz") as HTMLSelectElement;
+  const epochHumanToTsBtn = document.getElementById("epoch-human-to-ts") as HTMLButtonElement;
+
+  function pad(n: number): string {
+    return String(n).padStart(2, "0");
+  }
+
+  function clampEpochInput(el: HTMLInputElement | null, min: number, max: number): void {
+    if (!el) return;
+    const n = parseInt(el.value, 10);
+    if (isNaN(n)) return;
+    const clamped = Math.max(min, Math.min(max, n));
+    if (clamped !== n) el.value = String(clamped);
+  }
+
+  function validateEpochInputs(): void {
+    clampEpochInput(epochMon, 1, 12);
+    clampEpochInput(epochDay, 1, 31);
+    clampEpochInput(epochHr, 0, 23);
+    clampEpochInput(epochMin, 0, 59);
+    clampEpochInput(epochSec, 0, 59);
+  }
+
+  function fillHumanDateWithNow() {
+    const now = new Date();
+    if (epochYr) epochYr.value = String(now.getFullYear());
+    if (epochMon) epochMon.value = String(now.getMonth() + 1);
+    if (epochDay) epochDay.value = String(now.getDate());
+    if (epochHr) epochHr.value = String(now.getHours());
+    if (epochMin) epochMin.value = String(now.getMinutes());
+    if (epochSec) epochSec.value = String(now.getSeconds());
+  }
+
+  function humanDateToTimestamp(): number | null {
+    let yr = parseInt(epochYr?.value || "0", 10);
+    let mon = parseInt(epochMon?.value || "0", 10);
+    let day = parseInt(epochDay?.value || "0", 10);
+    let hr = parseInt(epochHr?.value || "0", 10);
+    let min = parseInt(epochMin?.value || "0", 10);
+    let sec = parseInt(epochSec?.value || "0", 10);
+    const tz = epochTz?.value || "GMT";
+
+    if (isNaN(yr) || isNaN(mon) || isNaN(day) || isNaN(hr) || isNaN(min) || isNaN(sec)) {
+      return null;
+    }
+
+    mon = Math.max(1, Math.min(12, mon));
+    day = Math.max(1, Math.min(31, day));
+    hr = Math.max(0, Math.min(23, hr));
+    min = Math.max(0, Math.min(59, min));
+    sec = Math.max(0, Math.min(59, sec));
+
+    const offset = EPOCH_TZ_OFFSETS[tz] ?? "Z";
+    const iso = `${yr}-${pad(mon)}-${pad(day)}T${pad(hr)}:${pad(min)}:${pad(sec)}${offset}`;
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return null;
+    return date.getTime();
+  }
+
+  [epochMon, epochDay, epochHr, epochMin, epochSec].forEach((el) => {
+    el?.addEventListener("blur", validateEpochInputs);
+    el?.addEventListener("input", validateEpochInputs);
+  });
+
+  function updateCurrentEpoch() {
+    if (epochCurrentEl) {
+      epochCurrentEl.value = Math.floor(Date.now() / 1000).toString();
+    }
+  }
+
+  updateCurrentEpoch();
+  setInterval(updateCurrentEpoch, 1000);
+
+  fillHumanDateWithNow();
+
+  epochHumanToTsBtn?.addEventListener("click", () => {
+    validateEpochInputs();
+    const ms = humanDateToTimestamp();
+    if (ms == null) {
+      dateEpochSecondsEl.value = "Invalid";
+      dateEpochMsEl.value = "Invalid";
+      return;
+    }
+    dateEpochSecondsEl.value = Math.floor(ms / 1000).toString();
+    dateEpochMsEl.value = ms.toString();
+  });
+
+  epochToDateInput?.addEventListener("input", () => {
+    const val = epochToDateInput.value.trim();
+    if (!val) {
+      epochLocalEl.value = "";
+      epochUtcEl.value = "";
+      epochIsoEl.value = "";
+      return;
+    }
+
+    let timestamp = parseInt(val, 10);
+    if (isNaN(timestamp)) {
+      epochLocalEl.value = "Invalid";
+      epochUtcEl.value = "Invalid";
+      epochIsoEl.value = "Invalid";
+      return;
+    }
+
+    if (val.length > 10) {
+      timestamp = Math.floor(timestamp / 1000);
+    }
+
+    const date = new Date(timestamp * 1000);
+    if (isNaN(date.getTime())) {
+      epochLocalEl.value = "Invalid";
+      epochUtcEl.value = "Invalid";
+      epochIsoEl.value = "Invalid";
+      return;
+    }
+
+    epochLocalEl.value = date.toLocaleString();
+    epochUtcEl.value = date.toUTCString();
+    epochIsoEl.value = date.toISOString();
+  });
+
+  document.querySelectorAll<HTMLButtonElement>(".epoch-copy-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.dataset.target;
+      if (!targetId) return;
+      const input = document.getElementById(targetId) as HTMLInputElement;
+      if (!input || !input.value) return;
+      navigator.clipboard.writeText(input.value).then(() => {
+        btn.classList.add("copied");
+        setTimeout(() => btn.classList.remove("copied"), 1500);
+      });
+    });
+  });
 }
 
 // --- Tool Selector removed - tools are now individual tabs ---
@@ -645,17 +845,29 @@ function initToolInputs() {
   bindInput("url-decode-input", "url-decode-result", (v) => {
     try { return decodeURIComponent(v); } catch (e: any) { return `Error: ${e.message}`; }
   });
-  // MD5
-  bindInput("md5-input", "md5-result", (v) => md5(v));
-  // SHA-256 (async)
-  const sha256Input = document.getElementById("sha256-input") as HTMLTextAreaElement;
-  const sha256Result = document.getElementById("sha256-result") as HTMLTextAreaElement;
-  sha256Input?.addEventListener("input", async () => {
-    const val = sha256Input.value;
-    if (!val) { sha256Result.value = ""; return; }
-    try { sha256Result.value = await sha256(val); }
-    catch (e: any) { sha256Result.value = `Error: ${e.message}`; }
+  // Hash String (unified)
+  const hashInput = document.getElementById("hash-input") as HTMLTextAreaElement;
+  hashInput?.addEventListener("input", async () => {
+    await computeAllHashes(hashInput.value);
   });
+
+  // Hash copy buttons
+  document.querySelectorAll<HTMLButtonElement>(".hash-copy-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.dataset.target;
+      if (!targetId) return;
+      const input = document.getElementById(targetId) as HTMLInputElement;
+      if (!input || !input.value) return;
+      navigator.clipboard.writeText(input.value).then(() => {
+        btn.classList.add("copied");
+        setTimeout(() => btn.classList.remove("copied"), 1500);
+      });
+    });
+  });
+
+  // Epoch Converter
+  initEpochConverter();
+
   // JSON / JS Beautify
   bindInput("json-input", "json-result", (v) => {
     // Try JSON first

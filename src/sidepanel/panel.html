@@ -19,7 +19,7 @@
           <button class="sub-tab-btn active" data-subtab="data">Data</button>
           <button class="sub-tab-btn" data-subtab="links">Links</button>
         </div>
-        
+
         <!-- Sub-tab contents -->
         <div class="sub-tab-content active" id="subtab-data">
           <div id="data"></div>
@@ -29,14 +29,14 @@
             <div class="no-data">No links available</div>
           </div>
         </div>
-        
+
         <div id="status" class="status"></div>
       </div>
 
       <!-- Base64 Tab -->
       <div class="tab-content" id="tab-base64">
         <div class="tool-section">
-          <div class="tool-label">Encode</div>
+          <div class="tool-label">Base64 Encode</div>
           <textarea class="tool-input" id="base64-encode-input" rows="3"
             placeholder="Enter text to encode..."></textarea>
           <div class="result-wrapper">
@@ -51,7 +51,7 @@
         </div>
         <div class="tool-divider"></div>
         <div class="tool-section">
-          <div class="tool-label">Decode</div>
+          <div class="tool-label">Base64 Decode</div>
           <textarea class="tool-input" id="base64-decode-input" rows="3"
             placeholder="Enter base64 to decode..."></textarea>
           <div class="result-wrapper">
@@ -69,7 +69,7 @@
       <!-- URL Tab -->
       <div class="tab-content" id="tab-url">
         <div class="tool-section">
-          <div class="tool-label">Encode</div>
+          <div class="tool-label">URL Encode</div>
           <textarea class="tool-input" id="url-encode-input" rows="3" placeholder="Enter text to encode..."></textarea>
           <div class="result-wrapper">
             <textarea class="tool-result" id="url-encode-result" rows="3" placeholder="Result..." readonly></textarea>
@@ -82,7 +82,7 @@
         </div>
         <div class="tool-divider"></div>
         <div class="tool-section">
-          <div class="tool-label">Decode</div>
+          <div class="tool-label">URL Decode</div>
           <textarea class="tool-input" id="url-decode-input" rows="3"
             placeholder="Enter URL-encoded text..."></textarea>
           <div class="result-wrapper">
@@ -96,34 +96,199 @@
         </div>
       </div>
 
-      <!-- MD5 Tab -->
-      <div class="tab-content" id="tab-md5">
+      <!-- Hash Tab -->
+      <div class="tab-content" id="tab-hash">
         <div class="tool-section">
-          <div class="tool-label">MD5 Hash</div>
-          <textarea class="tool-input" id="md5-input" rows="3" placeholder="Enter text to hash..."></textarea>
-          <div class="result-wrapper">
-            <textarea class="tool-result" id="md5-result" rows="2" placeholder="Result..." readonly></textarea>
-            <button class="result-copy-btn" data-target="md5-result" title="Copy"><svg viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-              </svg></button>
+          <div class="tool-label">Hash String</div>
+          <textarea class="tool-input" id="hash-input" rows="3" placeholder="Enter text to hash..."></textarea>
+
+          <div class="hash-results">
+            <div class="hash-result-item">
+              <span class="hash-label">MD5</span>
+              <div class="hash-value-wrapper">
+                <input type="text" class="hash-value" id="hash-md5" readonly placeholder="—">
+                <button class="hash-copy-btn" data-target="hash-md5" title="Copy">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="hash-result-item">
+              <span class="hash-label">SHA-1</span>
+              <div class="hash-value-wrapper">
+                <input type="text" class="hash-value" id="hash-sha1" readonly placeholder="—">
+                <button class="hash-copy-btn" data-target="hash-sha1" title="Copy">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="hash-result-item">
+              <span class="hash-label">SHA-256</span>
+              <div class="hash-value-wrapper">
+                <input type="text" class="hash-value" id="hash-sha256" readonly placeholder="—">
+                <button class="hash-copy-btn" data-target="hash-sha256" title="Copy">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="hash-result-item">
+              <span class="hash-label">SHA-384</span>
+              <div class="hash-value-wrapper">
+                <input type="text" class="hash-value" id="hash-sha384" readonly placeholder="—">
+                <button class="hash-copy-btn" data-target="hash-sha384" title="Copy">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="hash-result-item">
+              <span class="hash-label">SHA-512</span>
+              <div class="hash-value-wrapper">
+                <input type="text" class="hash-value" id="hash-sha512" readonly placeholder="—">
+                <button class="hash-copy-btn" data-target="hash-sha512" title="Copy">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- SHA-256 Tab -->
-      <div class="tab-content" id="tab-sha256">
+      <!-- Epoch Converter Tab -->
+      <div class="tab-content" id="tab-epoch">
         <div class="tool-section">
-          <div class="tool-label">SHA-256 Hash</div>
-          <textarea class="tool-input" id="sha256-input" rows="3" placeholder="Enter text to hash..."></textarea>
-          <div class="result-wrapper">
-            <textarea class="tool-result" id="sha256-result" rows="2" placeholder="Result..." readonly></textarea>
-            <button class="result-copy-btn" data-target="sha256-result" title="Copy"><svg viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <div class="tool-label">Current Epoch</div>
+          <div class="epoch-current-wrapper">
+            <input type="text" class="epoch-current" id="epoch-current" readonly>
+            <button class="epoch-copy-btn" data-target="epoch-current" title="Copy">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-              </svg></button>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="tool-divider"></div>
+
+        <div class="tool-section">
+          <div class="tool-label">Epoch → Human Date</div>
+          <input type="text" class="tool-input-single" id="epoch-to-date-input"
+            placeholder="Enter epoch timestamp (e.g. 1709283600)">
+          <div class="epoch-results" id="epoch-to-date-results">
+            <div class="epoch-result-row">
+              <span class="epoch-result-label">Local</span>
+              <input type="text" class="epoch-result-value" id="epoch-local" readonly placeholder="—">
+            </div>
+            <div class="epoch-result-row">
+              <span class="epoch-result-label">UTC</span>
+              <input type="text" class="epoch-result-value" id="epoch-utc" readonly placeholder="—">
+            </div>
+            <div class="epoch-result-row">
+              <span class="epoch-result-label">ISO 8601</span>
+              <input type="text" class="epoch-result-value" id="epoch-iso" readonly placeholder="—">
+            </div>
+          </div>
+        </div>
+
+        <div class="tool-divider"></div>
+
+        <div class="tool-section">
+          <div class="tool-label">Human Date → Epoch</div>
+          <div class="epoch-date-inputs">
+            <div class="epoch-date-field">
+              <label class="epoch-date-label">Yr</label>
+              <input type="number" class="epoch-date-input year-input" id="epoch-yr" min="1970" max="2100"
+                placeholder="2026">
+            </div>
+            <span class="epoch-date-sep">-</span>
+            <div class="epoch-date-field">
+              <label class="epoch-date-label">Mon</label>
+              <input type="number" class="epoch-date-input month-input" id="epoch-mon" min="1" max="12" placeholder="3">
+            </div>
+            <span class="epoch-date-sep">-</span>
+            <div class="epoch-date-field">
+              <label class="epoch-date-label">Day</label>
+              <input type="number" class="epoch-date-input day-input" id="epoch-day" min="1" max="31" placeholder="4">
+            </div>
+            <div class="epoch-date-field" style="margin-left: 8px;">
+              <label class="epoch-date-label">Hr</label>
+              <input type="number" class="epoch-date-input hour-input" id="epoch-hr" min="0" max="23" placeholder="4">
+            </div>
+            <span class="epoch-date-sep">:</span>
+            <div class="epoch-date-field">
+              <label class="epoch-date-label">Min</label>
+              <input type="number" class="epoch-date-input minute-input" id="epoch-min" min="0" max="59"
+                placeholder="36">
+            </div>
+            <span class="epoch-date-sep">:</span>
+            <div class="epoch-date-field">
+              <label class="epoch-date-label">Sec</label>
+              <input type="number" class="epoch-date-input second-input" id="epoch-sec" min="0" max="59"
+                placeholder="30">
+            </div>
+            <div class="epoch-date-field">
+              <label class="epoch-date-label">TZ</label>
+              <select class="epoch-tz-select" id="epoch-tz">
+                <option value="GMT">GMT</option>
+                <option value="UTC">UTC</option>
+                <option value="Asia/Ho_Chi_Minh">GMT+7 (VN)</option>
+                <option value="America/New_York">EST (NY)</option>
+                <option value="America/Los_Angeles">PST (LA)</option>
+                <option value="Europe/London">GMT (London)</option>
+                <option value="Asia/Tokyo">JST (Tokyo)</option>
+                <option value="Asia/Singapore">SGT (Singapore)</option>
+              </select>
+            </div>
+            <button type="button" class="epoch-convert-btn" id="epoch-human-to-ts"
+              title="Human date to Timestamp">Convert</button>
+          </div>
+          <div class="epoch-results">
+            <div class="epoch-result-row">
+              <span class="epoch-result-label">Seconds</span>
+              <input type="text" class="epoch-result-value" id="date-epoch-seconds" readonly placeholder="—">
+              <button class="epoch-copy-btn small" data-target="date-epoch-seconds" title="Copy">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                </svg>
+              </button>
+            </div>
+            <div class="epoch-result-row">
+              <span class="epoch-result-label">Milliseconds</span>
+              <input type="text" class="epoch-result-value" id="date-epoch-ms" readonly placeholder="—">
+              <button class="epoch-copy-btn small" data-target="date-epoch-ms" title="Copy">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -244,32 +409,20 @@
             </g>
           </svg>
         </button>
-        <button class="tab-btn" data-tab="md5" title="MD5 Hash">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 64 64">
-            <title />
-            <path
-              d="M31,28.019v7.2l8.234,4.755,8.235-4.755V25.709l-8.235-4.754L33,24.554v-7.2L24.766,12.6l-8.235,4.754v9.509l8.235,4.755Zm2,0,5.232,3.02v6.048L33,34.063Zm7.232,9.071v-6.04l5.237-3.029v6.045Zm4.237-10.8-5.227,3.023L34,26.285l5.232-3.021ZM31,25.709h0l-5.237,3.023V22.692L31,19.664v6.045Zm-1-7.777-5.227,3.022-5.24-3.024,5.233-3.02ZM18.531,19.661l5.232,3.02v6.048l-5.232-3.02Z" />
-            <path
-              d="M34.53,50.859a1.919,1.919,0,0,0-1.638-.7H31.88v5.664h.988a2.343,2.343,0,0,0,1.09-.223,1.729,1.729,0,0,0,.675-.618,2.6,2.6,0,0,0,.343-.908,5.967,5.967,0,0,0,.1-1.1,4.926,4.926,0,0,0-.138-1.24A2.5,2.5,0,0,0,34.53,50.859Z" />
-            <path
-              d="M54,43.67V17.376l-.293-.293L39.417,2.793,39.124,2.5H14a4,4,0,0,0-4,4V40.242a1.991,1.991,0,0,0-1,1.722V56.5a5.006,5.006,0,0,0,5,5H50a5.006,5.006,0,0,0,5-5V45.393A1.991,1.991,0,0,0,54,43.67ZM28.652,57.453h-1.7V51.369l-1.74,6.084H23.756L22.04,51.381v6.072h-1.7V48.525h2.557l1.584,5.736,1.595-5.736h2.58Zm8.077-2.562a3.5,3.5,0,0,1-.79,1.4,3.845,3.845,0,0,1-3.025,1.164H29.973V48.525h2.918a4.8,4.8,0,0,1,1.835.318A3.29,3.29,0,0,1,36,49.75a3.746,3.746,0,0,1,.741,1.409A6.609,6.609,0,0,1,36.98,53,6.49,6.49,0,0,1,36.729,54.891Zm6.335,1.83a2.779,2.779,0,0,1-1.056.642,4.273,4.273,0,0,1-1.392.21,3.5,3.5,0,0,1-1.763-.45,2.845,2.845,0,0,1-1.2-1.362l1.548-.8a1.071,1.071,0,0,0,.18.383,1.989,1.989,0,0,0,.349.336A1.584,1.584,0,0,0,40.748,56a1.424,1.424,0,0,0,.606-.12,1.192,1.192,0,0,0,.432-.336,1.437,1.437,0,0,0,.258-.5,2.183,2.183,0,0,0,.084-.613,2.052,2.052,0,0,0-.084-.6,1.45,1.45,0,0,0-.252-.486,1.176,1.176,0,0,0-.426-.33,1.409,1.409,0,0,0-.594-.12,1.243,1.243,0,0,0-.713.2,1.6,1.6,0,0,0-.5.558l-1.477-.276.348-4.848h4.932v1.632H39.848l-.1,1.524a1.76,1.76,0,0,1,.7-.288,4.744,4.744,0,0,1,.75-.06,2.551,2.551,0,0,1,1.956.9,3.419,3.419,0,0,1-.1,4.488ZM52,43.393H30.086l-2.4-2.746a2,2,0,0,0-1.505-.683H12V6.5a2,2,0,0,1,2-2H37.71V14.79a4,4,0,0,0,4,4H52Z" />
+        <button class="tab-btn" data-tab="hash" title="Hash String">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="9" x2="20" y2="9" />
+            <line x1="4" y1="15" x2="20" y2="15" />
+            <line x1="10" y1="3" x2="8" y2="21" />
+            <line x1="16" y1="3" x2="14" y2="21" />
           </svg>
         </button>
-        <button class="tab-btn" data-tab="sha256" title="SHA-256 Hash">
-          <svg id="Capa_1" enable-background="new 0 0 512 512" height="20" viewBox="0 0 512 512" width="20"
-            xmlns="http://www.w3.org/2000/svg">
-            <g>
-              <path
-                d="m490.189 433.069c-9.399 0-17.428 5.976-20.488 14.327h-34.779v-27.253h62.014c7.428 0 13.471-6.043 13.471-13.471v-208.49c0-3.598-1.401-6.981-3.946-9.525l-26.364-26.364v-64.5c8.483-2.99 14.582-11.081 14.582-20.575 0-12.026-9.784-21.81-21.811-21.81s-21.811 9.785-21.811 21.81c0 9.302 5.855 17.258 14.072 20.388v43.983c-1.12-10.983-10.423-19.582-21.698-19.582-12.027 0-21.811 9.784-21.811 21.81 0 9.298 5.85 17.251 14.06 20.383v44.191c0 3.598 1.401 6.981 3.946 9.525l26.364 26.364v128.091h-31.07v-109.586c0-14.1-11.307-25.599-25.329-25.928v-81.97c0-41.19-16.105-79.935-45.348-109.096-29.239-29.16-68.042-45.182-109.223-45.041-29.698.083-58.515 8.737-83.334 25.026-3.455 2.269-4.418 6.908-2.15 10.363 2.269 3.455 6.908 4.419 10.363 2.151 22.385-14.692 48.376-22.497 75.163-22.572.134 0 .264-.001.398-.001 37.039 0 71.908 14.437 98.218 40.673 26.406 26.333 40.949 61.313 40.949 98.497v81.955h-36.244v-22.41c0-4.134-3.351-7.484-7.484-7.484s-7.484 3.35-7.484 7.484v22.41h-241.479c-14.305 0-25.944 11.638-25.944 25.944v109.587h-31.979v-128.092l26.364-26.364c2.544-2.544 3.946-5.928 3.946-9.525v-19.528c8.211-3.133 14.06-11.086 14.06-20.382 0-12.027-9.784-21.811-21.811-21.811-9.631 0-17.818 6.277-20.7 14.953v-119.173c8.217-3.13 14.072-11.086 14.072-20.388 0-12.026-9.784-21.81-21.811-21.81s-21.811 9.785-21.811 21.81c0 9.493 6.098 17.585 14.582 20.575v119.655l-26.364 26.363c-2.544 2.544-3.946 5.928-3.946 9.525v208.491c0 7.428 6.043 13.471 13.471 13.471h61.926v27.253h-33.692c-3.06-8.352-11.089-14.327-20.488-14.327-12.027 0-21.811 9.785-21.811 21.811s9.784 21.81 21.811 21.81c9.399 0 17.427-5.976 20.488-14.326h33.694v23.44c0 14.306 11.638 25.944 25.944 25.944h194.539c4.133 0 7.484-3.35 7.484-7.484s-3.351-7.484-7.484-7.484h-194.54c-6.052 0-10.976-4.924-10.976-10.976v-223.019c0-6.052 4.924-10.976 10.976-10.976h307.042c6.052 0 10.976 4.924 10.976 10.976v223.019c0 6.052-4.924 10.976-10.976 10.976h-75.708c-4.133 0-7.484 3.35-7.484 7.484s3.351 7.484 7.484 7.484h75.708c14.305 0 25.944-11.638 25.944-25.944v-23.44h34.78c3.06 8.351 11.089 14.326 20.488 14.326 12.027 0 21.811-9.785 21.811-21.81-.001-12.026-9.785-21.811-21.812-21.811zm-468.378 28.654c-3.773 0-6.843-3.07-6.843-6.843 0-3.774 3.07-6.844 6.843-6.844s6.843 3.07 6.843 6.844c0 3.773-3.07 6.843-6.843 6.843zm44.761-300.085c3.773 0 6.843 3.071 6.843 6.844s-3.07 6.843-6.843 6.843-6.843-3.07-6.843-6.843 3.07-6.844 6.843-6.844zm-28.439-146.418c3.773 0 6.843 3.07 6.843 6.843 0 3.774-3.07 6.844-6.843 6.844s-6.843-3.07-6.843-6.844c0-3.773 3.07-6.843 6.843-6.843zm-22.57 389.956v-206.374l26.365-26.366c1.222-1.223 2.173-2.643 2.839-4.184-.001.076-.006.152-.006.228 0 9.497 6.104 17.591 14.593 20.578v18.712l-26.364 26.364c-2.544 2.544-3.946 5.928-3.946 9.526v130.208c0 7.428 6.043 13.471 13.471 13.471h33.476v17.836h-60.428zm457.306-334.8c3.773 0 6.843 3.07 6.843 6.843 0 3.774-3.07 6.844-6.843 6.844s-6.843-3.07-6.843-6.844c0-3.773 3.07-6.843 6.843-6.843zm-29.437 66.599c3.773 0 6.843 3.07 6.843 6.843s-3.07 6.844-6.843 6.844-6.843-3.071-6.843-6.844 3.07-6.843 6.843-6.843zm24.056 250.365c7.428 0 13.471-6.043 13.471-13.471v-130.208c0-3.599-1.401-6.982-3.946-9.526l-26.364-26.364v-43.375c7.817-2.75 13.612-9.83 14.48-18.35v16.866c0 3.598 1.401 6.98 3.946 9.526l26.364 26.364v206.374h-60.518v-17.836zm22.701 74.383c-3.773 0-6.843-3.07-6.843-6.843 0-3.774 3.07-6.844 6.843-6.844s6.843 3.07 6.843 6.844c0 3.773-3.07 6.843-6.843 6.843z" />
-              <path
-                d="m116.787 203.663h35.247c8.528 0 15.467-6.938 15.467-15.467v-32.094c0-48.703 39.067-88.704 87.088-89.168 23.653-.262 45.901 8.823 62.727 25.485 16.83 16.668 26.099 38.852 26.099 62.467v23.073c0 4.134 3.351 7.484 7.484 7.484s7.484-3.35 7.484-7.484v-23.073c0-27.64-10.844-53.602-30.534-73.103-19.686-19.496-45.74-30.066-73.405-29.817-56.193.545-101.91 47.259-101.91 104.136v32.094c0 .275-.224.499-.499.499h-35.247c-.275 0-.499-.224-.499-.499v-31.89c0-36.554 13.905-71.23 39.153-97.64 2.856-2.988 2.749-7.725-.238-10.581-2.989-2.857-7.725-2.751-10.581.238-27.923 29.208-43.301 67.558-43.301 107.983v31.89c-.002 8.529 6.937 15.467 15.465 15.467z" />
-              <path
-                d="m251.022 414.763c-.166.003-.332.005-.498.005-12.111 0-22.427-8.916-24.104-20.93-.156-1.115-.235-2.26-.235-3.401 0-4.134-3.351-7.484-7.484-7.484s-7.484 3.35-7.484 7.484c0 1.832.128 3.674.379 5.471 2.709 19.417 19.367 33.829 38.924 33.828.266 0 .535-.003.802-.009 20.493-.412 37.377-16.757 38.437-37.21.565-10.892-3.251-21.238-10.746-29.132-7.498-7.898-17.619-12.247-28.498-12.247-4.885 0-8.786.362-12.217 1.043l4.651-28.07h32.736c4.133 0 7.484-3.35 7.484-7.484s-3.351-7.484-7.484-7.484h-39.082c-3.661 0-6.785 2.649-7.383 6.261l-7.743 46.731c-.899 5.171 5.341 11.348 11.804 7.408 4.472-2.012 8.326-3.437 17.233-3.437 6.734 0 13 2.693 17.643 7.585 4.641 4.888 7.004 11.298 6.654 18.051-.654 12.653-11.105 22.765-23.789 23.021z" />
-              <path
-                d="m167.108 363.051c-16.53 23.618-26.397 36.538-31.699 43.479-6.418 8.404-8.144 10.662-6.785 15.08.767 2.494 2.671 4.411 5.223 5.262 1.023.341 40.676.733 55.468.547 4.133-.052 7.441-3.444 7.389-7.576-.052-4.102-3.392-7.39-7.481-7.39-.032 0-.064 0-.096.001-14.15.176-29.323.265-39.583.226 5.737-7.539 15.212-20.164 29.826-41.045 6.331-9.046 10.441-17.519 12.218-25.185.174-1.078.584-3.677.708-5.713 0-18.803-15.297-34.101-34.101-34.101-16.259 0-30.331 11.566-33.461 27.5-.797 4.056 1.846 7.99 5.901 8.786 4.055.793 7.99-1.846 8.786-5.901 1.755-8.933 9.65-15.417 18.774-15.417 10.404 0 19.129 8.734 19.129 18.696 0 1.431-.399 3.117-.399 3.117-1.393 5.711-4.694 12.315-9.817 19.634z" />
-              <path
-                d="m383.326 390.811c0-20.712-16.851-37.563-37.564-37.563-4.516 0-8.848.802-12.862 2.269 10.168-20.454 24.392-31.384 24.597-31.538 3.302-2.47 3.985-7.149 1.522-10.46-2.467-3.315-7.156-4.005-10.471-1.538-1.4 1.041-34.19 25.941-39.88 72.918-.306 1.927-.469 3.9-.469 5.912 0 20.713 16.851 37.564 37.564 37.564 20.711 0 37.563-16.851 37.563-37.564zm-60.161 0c0-1.115.084-2.211.241-3.283.011-.077.029-.152.037-.23.004-.032.009-.063.013-.095 1.733-10.75 11.073-18.988 22.305-18.988 12.46 0 22.597 10.136 22.597 22.596s-10.137 22.597-22.597 22.597c-12.459 0-22.596-10.138-22.596-22.597z" />
-            </g>
+        <button class="tab-btn" data-tab="epoch" title="Epoch Converter">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
           </svg>
         </button>
         <button class="tab-btn" data-tab="json" title="JSON Beautify">
