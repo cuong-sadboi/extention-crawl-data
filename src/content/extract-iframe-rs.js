@@ -1,7 +1,8 @@
 /**
  * extract-iframe-rs.js
  * Content script injected into ALL frames (main page + iframes)
- * Extracts Related Searches using language-agnostic + multi-language strategies.
+ * Extracts Related Searches using language-agnostic strategies (CSS classes, selectors, URL patterns, DOM structure).
+ * No language-based heading detection — works universally regardless of page language.
  * Designed for arbitrage pages (tipssearch, typedeal, etc.) and Google AFS/CSE iframes.
  */
 (function () {
@@ -23,77 +24,7 @@
     host.includes("googlesyndication.com") ||
     host.includes("cse.google");
 
-  // ============================================================
-  // "Related Searches" heading patterns in 30+ languages
-  // ============================================================
-  var RS_PATTERNS = [
-    // English
-    /^related\s*search(es)?$/i,
-    /^people\s*also\s*search(ed)?\s*(for)?$/i,
-    /^similar\s*search(es)?$/i,
-    /^search(es)?\s*related\s*to$/i,
-    // German
-    /^verwandte\s*such(anfragen|ergebnisse)?$/i,
-    /^ähnliche\s*such(anfragen|ergebnisse)?$/i,
-    // French
-    /^recherches?\s*(associ[ée]e?s?|connexes?|similaires?)$/i,
-    // Spanish
-    /^b[úu]squedas?\s*relacionad(a|o|as|os)?$/i,
-    /^buscar\s*relacionad/i,
-    // Portuguese
-    /^pesquisas?\s*relacionad(a|o|as|os)?$/i,
-    // Italian
-    /^ricerche?\s*(correlat[eai]|simili|collegate)$/i,
-    // Dutch
-    /^gerelateerde?\s*zoek(opdrachten|resultaten)?$/i,
-    // Polish
-    /^powi[aą]zane\s*wyszukiwani[ae]$/i,
-    // Czech / Slovak
-    /^souvisej[ií]c[ií]\s*vyhled[áa]v[áa]n[ií]$/i,
-    // Romanian
-    /^c[ăa]ut[ăa]ri\s*(similare|conexe|[îi]nrudite)$/i,
-    // Turkish
-    /^ilgili\s*arama(lar)?$/i,
-    // Russian
-    /^похожие\s*запрос[ыи]$/i,
-    /^связанные\s*запрос[ыи]$/i,
-    // Ukrainian
-    /^пов['ʼ]?язан[ії]\s*запити$/i,
-    // Japanese
-    /^関連.{0,2}(検索|キーワード)$/,
-    // Chinese (Simplified + Traditional)
-    /^相[关關][搜搜][索尋]$/,
-    // Korean
-    /^관련\s*검색$/,
-    // Vietnamese
-    /^t[ìi]m\s*ki[ếe]m\s*li[eê]n\s*quan$/i,
-    // Thai
-    /^การค้นหาที่เกี่ยวข้อง$/,
-    // Arabic
-    /^عمليات بحث ذات صلة$/,
-    /^بحث ذو صلة$/,
-    // Hindi
-    /^संबंधित खोज(ें)?$/,
-    // Indonesian / Malay
-    /^pencarian\s*terkait$/i,
-    /^carian\s*berkaitan$/i,
-    // Swedish
-    /^relaterade?\s*s[öo]kningar?$/i,
-    // Norwegian / Danish
-    /^relaterte?\s*s[øo]k$/i,
-    // Finnish
-    /^aiheeseen\s*liittyv[äa]t?\s*haut?$/i,
-    // Hungarian
-    /^kapcsol[óo]d[óo]\s*keres[ée]sek?$/i,
-    // Greek
-    /^σχετικ[έε]ς?\s*αναζητ[ήη]σεις?$/i,
-    // Hebrew
-    /^חיפושים? קשורים?$/,
-    // Generic fallback: just the word "related" near "search" in any order
-    /related.{0,5}search|search.{0,5}related/i,
-  ];
-
-  // Words to skip (navigation/UI text, multi-language)
+  // Words to skip (navigation/UI text)
   var SKIP_TEXTS = new Set([
     "search", "related", "related searches", "more", "next", "prev", "previous",
     "back", "home", "about", "contact", "subscribe", "web search", "menu",
@@ -158,15 +89,6 @@
     return out;
   }
 
-  function matchesRSHeading(text) {
-    var t = (text || "").trim();
-    if (t.length > 60) return false;
-    for (var i = 0; i < RS_PATTERNS.length; i++) {
-      if (RS_PATTERNS[i].test(t)) return true;
-    }
-    return false;
-  }
-
   // Check if an element is inside a blacklisted section
   function isInsideBlacklistedSection(el) {
     var node = el;
@@ -192,87 +114,11 @@
     return false;
   }
 
-  function collectLinksNearElement(el) {
-    var results = [];
-    // Siblings after the element
-    var sibling = el.nextElementSibling;
-    for (var j = 0; j < 20 && sibling; j++) {
-      var links = sibling.querySelectorAll("a");
-      links.forEach(function (a) {
-        var t = (a.textContent || "").trim();
-        if (isValidRS(t)) results.push({ text: t, href: a.href || "" });
-      });
-      sibling = sibling.nextElementSibling;
-    }
-    // Parent's siblings
-    var parent = el.parentElement;
-    if (parent) {
-      var pSibling = parent.nextElementSibling;
-      for (var k = 0; k < 15 && pSibling; k++) {
-        var pLinks = pSibling.querySelectorAll("a");
-        pLinks.forEach(function (a) {
-          var t = (a.textContent || "").trim();
-          if (isValidRS(t)) results.push({ text: t, href: a.href || "" });
-        });
-        pSibling = pSibling.nextElementSibling;
-      }
-      // Also check parent's own children (heading may be inside container)
-      if (results.length === 0) {
-        var containerLinks = parent.querySelectorAll("a");
-        containerLinks.forEach(function (a) {
-          var t = (a.textContent || "").trim();
-          if (isValidRS(t) && !matchesRSHeading(t)) {
-            results.push({ text: t, href: a.href || "" });
-          }
-        });
-      }
-    }
-    // Grandparent
-    var grandParent = parent ? parent.parentElement : null;
-    if (grandParent && results.length === 0) {
-      var gpLinks = grandParent.querySelectorAll("a");
-      gpLinks.forEach(function (a) {
-        var t = (a.textContent || "").trim();
-        if (isValidRS(t) && !matchesRSHeading(t)) {
-          results.push({ text: t, href: a.href || "" });
-        }
-      });
-    }
-    return results;
-  }
-
   // ============================================================
-  // STRATEGY 1: Multi-language heading detection
-  // Find "Related searches" heading in 30+ languages, then grab nearby links
-  // ============================================================
-  function strategy1_headingLinks() {
-    var candidates = document.querySelectorAll(
-      "h1, h2, h3, h4, h5, h6, div, span, p, b, strong, section, header, label, dt"
-    );
-    for (var i = 0; i < candidates.length; i++) {
-      var el = candidates[i];
-      if (el.children.length > 8) continue;
-      // Get the element's own direct text (not children's text)
-      var directText = "";
-      el.childNodes.forEach(function (node) {
-        if (node.nodeType === 3) directText += node.textContent;
-      });
-      var fullText = (el.textContent || "").trim();
-      var textToCheck = directText.trim().length > 2 ? directText.trim() : fullText;
-
-      if (matchesRSHeading(textToCheck)) {
-        var results = collectLinksNearElement(el);
-        if (results.length >= 1) return results;
-      }
-    }
-    return null;
-  }
-
-  // ============================================================
-  // STRATEGY 2: Inside Google iframe → grab all meaningful links
+  // STRATEGY 1: Inside Google iframe → grab all meaningful links
   // Language agnostic: we know we're in Google's iframe
   // ============================================================
-  function strategy2_googleIframe() {
+  function strategy1_googleIframe() {
     if (!isGoogleFrame || !isIframe) return null;
 
     var results = [];
@@ -310,10 +156,10 @@
   }
 
   // ============================================================
-  // STRATEGY 3: Google AFS/CSE container selectors
+  // STRATEGY 2: Google AFS/CSE container selectors
   // Language agnostic: based on Google's fixed DOM IDs/classes
   // ============================================================
-  function strategy3_googleContainers() {
+  function strategy2_googleContainers() {
     var selectors = [
       "#afscontainer1 a", "#afscontainer2 a", "#afscontainer3 a",
       '[id^="afs"] a',
@@ -350,10 +196,10 @@
   }
 
   // ============================================================
-  // STRATEGY 4: Links with ?q= parameter pointing to Google
+  // STRATEGY 3: Links with ?q= parameter pointing to Google
   // Language agnostic: based on URL pattern
   // ============================================================
-  function strategy4_googleSearchLinks() {
+  function strategy3_googleSearchLinks() {
     var results = [];
     var links = document.querySelectorAll("a[href]");
 
@@ -391,10 +237,10 @@
   }
 
   // ============================================================
-  // STRATEGY 5: Any links with ?q= or ?query= parameter
-  // Broader than Strategy 4 (not limited to Google domains)
+  // STRATEGY 4: Any links with ?q= or ?query= parameter
+  // Broader than Strategy 3 (not limited to Google domains)
   // ============================================================
-  function strategy5_anySearchLinks() {
+  function strategy4_anySearchLinks() {
     var results = [];
     document.querySelectorAll('a[href*="?q="], a[href*="&q="], a[href*="query="]').forEach(function (a) {
       try {
@@ -415,10 +261,10 @@
   }
 
   // ============================================================
-  // STRATEGY 6: Styled link blocks (colored bars / cards)
+  // STRATEGY 5: Styled link blocks (colored bars / cards)
   // Language agnostic: detect by visual CSS properties
   // ============================================================
-  function strategy6_styledBlocks() {
+  function strategy5_styledBlocks() {
     if (isIframe) return null; // Only on main page
 
     var results = [];
@@ -469,10 +315,10 @@
   }
 
   // ============================================================
-  // STRATEGY 7: Link clusters (groups of 5+ similar links in same container)
+  // STRATEGY 6: Link clusters (groups of 5+ similar links in same container)
   // Language agnostic: based on DOM structure
   // ============================================================
-  function strategy7_linkClusters() {
+  function strategy6_linkClusters() {
     if (isIframe) return null;
 
     var containers = document.querySelectorAll("div, section, ul, ol, main, article, aside");
@@ -512,10 +358,10 @@
   }
 
   // ============================================================
-  // STRATEGY 8: Google top-frame (google.com search results page)
+  // STRATEGY 7: Google top-frame (google.com search results page)
   // Capture RS from Google SERP directly
   // ============================================================
-  function strategy8_googleSERP() {
+  function strategy7_googleSERP() {
     if (!isGoogleFrame || isIframe) return null;
     // Only on actual Google search pages
     if (!window.location.pathname.startsWith("/search")) return null;
@@ -551,35 +397,31 @@
     var r;
 
     // Priority 1: Inside Google iframe (highest confidence)
-    r = strategy2_googleIframe();
+    r = strategy1_googleIframe();
     if (r && r.length > 0) return { name: "Google iframe", data: r };
 
     // Priority 2: Google SERP page
-    r = strategy8_googleSERP();
+    r = strategy7_googleSERP();
     if (r && r.length > 0) return { name: "Google SERP", data: r };
 
-    // Priority 3: Multi-language heading detection
-    r = strategy1_headingLinks();
-    if (r && r.length > 0) return { name: "Heading links (" + r.length + " langs)", data: r };
-
-    // Priority 4: Google container selectors
-    r = strategy3_googleContainers();
+    // Priority 3: Google AFS/CSE container selectors
+    r = strategy2_googleContainers();
     if (r && r.length > 0) return { name: "Google containers", data: r };
 
-    // Priority 5: Links pointing to Google search
-    r = strategy4_googleSearchLinks();
+    // Priority 4: Links pointing to Google search
+    r = strategy3_googleSearchLinks();
     if (r && r.length > 0) return { name: "Google search links", data: r };
 
-    // Priority 6: Any search query links (min 3 to avoid false positives)
-    r = strategy5_anySearchLinks();
+    // Priority 5: Any search query links (min 3 to avoid false positives)
+    r = strategy4_anySearchLinks();
     if (r && r.length >= 3) return { name: "Search query links", data: r };
 
-    // Priority 7: Styled colored bars (min 3 results to be credible)
-    r = strategy6_styledBlocks();
+    // Priority 6: Styled colored bars (min 3 results to be credible)
+    r = strategy5_styledBlocks();
     if (r && r.length >= 3) return { name: "Styled blocks", data: r };
 
-    // Priority 8: Link clusters (min 5 results to avoid false positives)
-    r = strategy7_linkClusters();
+    // Priority 7: Link clusters (min 5 results to avoid false positives)
+    r = strategy6_linkClusters();
     if (r && r.length >= 5) return { name: "Link clusters", data: r };
 
     return null;
