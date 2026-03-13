@@ -23,6 +23,12 @@
     },
     {
       "matches": ["<all_urls>"],
+      "js": ["dist/content/extract-iframe-rs.js"],
+      "all_frames": true,
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["<all_urls>"],
       "js": ["dist/content/extract-datav3.js"],
       "world": "MAIN",
       "run_at": "document_idle"

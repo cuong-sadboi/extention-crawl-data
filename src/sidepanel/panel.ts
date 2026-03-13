@@ -33,7 +33,8 @@ interface TrackingData {
   keywords?: string | null;
   referrerAdCreative?: string | null;
   landing_page_id?: string | null;
-  [key: string]: string | null | undefined;
+  relatedSearches?: { text: string; href: string }[] | null;
+  [key: string]: string | null | undefined | { text: string; href: string }[];
 }
 
 const COPY_ICON = '<svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>';
@@ -207,6 +208,7 @@ function renderData(data: TrackingData | null) {
   status.textContent = `Last synced at ${now}`;
 
   renderLinks(data);
+  renderRelatedSearches(data.relatedSearches || null);
 }
 
 interface LinkItem {
@@ -301,6 +303,76 @@ function renderLinks(data: TrackingData | null) {
       });
     });
   });
+}
+
+function renderRelatedSearches(searches: { text: string; href: string }[] | null) {
+  const section = document.getElementById("rs-section")!;
+  const list = document.getElementById("rs-list")!;
+  const countEl = document.getElementById("rs-count")!;
+  const copyAllBtn = document.getElementById("rs-copy-all")!;
+  const emptyEl = document.getElementById("rs-empty")!;
+  const rsStatus = document.getElementById("rs-status")!;
+
+  if (!searches || searches.length === 0) {
+    section.style.display = "none";
+    emptyEl.style.display = "block";
+    rsStatus.textContent = "";
+    return;
+  }
+
+  section.style.display = "block";
+  emptyEl.style.display = "none";
+  countEl.textContent = `(${searches.length})`;
+
+  list.innerHTML = searches
+    .map((s, i) => {
+      const safeText = s.text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      return `
+        <div class="rs-item" data-index="${i}">
+          <div class="rs-text">${safeText}</div>
+          <button class="rs-copy-btn" data-value="${s.text.replace(/"/g, "&quot;")}" title="Copy">
+            ${COPY_ICON}
+          </button>
+        </div>
+      `;
+    })
+    .join("");
+
+  // Attach copy handlers for individual items
+  list.querySelectorAll<HTMLButtonElement>(".rs-copy-btn").forEach((btn) => {
+    const copyIcon = btn.innerHTML;
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const val = btn.dataset.value || "";
+      navigator.clipboard.writeText(val).then(() => {
+        btn.innerHTML = CHECK_ICON;
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.innerHTML = copyIcon;
+          btn.classList.remove("copied");
+        }, 1500);
+      });
+    });
+  });
+
+  // Copy all related searches
+  const copyAllIcon = copyAllBtn.innerHTML;
+  const newCopyAll = copyAllBtn.cloneNode(true) as HTMLButtonElement;
+  copyAllBtn.parentNode?.replaceChild(newCopyAll, copyAllBtn);
+  newCopyAll.addEventListener("click", () => {
+    const allText = searches.map((s) => s.text).join("\n");
+    navigator.clipboard.writeText(allText).then(() => {
+      newCopyAll.innerHTML = CHECK_ICON;
+      newCopyAll.classList.add("copied");
+      setTimeout(() => {
+        newCopyAll.innerHTML = copyAllIcon;
+        newCopyAll.classList.remove("copied");
+      }, 1500);
+    });
+  });
+
+  const now = new Date().toLocaleTimeString();
+  rsStatus.textContent = `Found ${searches.length} related searches \u00b7 ${now}`;
 }
 
 const BACKGROUND_RELOAD_DELAY_MS = 2000;
