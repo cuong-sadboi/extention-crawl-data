@@ -221,6 +221,27 @@ interface LinkGroup {
   links: LinkItem[];
 }
 
+interface DetectedScript {
+  url: string;
+  id: string;
+  type: string;
+}
+
+interface TcfConfig {
+  brand?: string;
+  className?: string;
+  homePage?: string;
+  tagApi?: string;
+  tagName?: string;
+  rootDomain?: string;
+  serviceHost?: string;
+}
+
+interface ScriptConfig {
+  sid?: string;
+  tcf?: TcfConfig & Record<string, unknown>;
+}
+
 function generateLinks(data: TrackingData): LinkGroup[] {
   const groups: LinkGroup[] = [];
   const arbCampaignId = data.arb_campaign_id;
@@ -377,6 +398,153 @@ function renderRelatedSearches(searches: { text: string; href: string }[] | null
 
 const BACKGROUND_RELOAD_DELAY_MS = 2000;
 
+function renderScriptConfig(config: ScriptConfig): string {
+  const rows: string[] = [];
+  
+  if (config.sid) {
+    rows.push(`<div class="config-row"><span class="config-key">sid</span><span class="config-value">${config.sid}</span></div>`);
+  }
+  
+  if (config.tcf) {
+    const tcf = config.tcf;
+    const tcfFields = ['brand', 'className', 'homePage', 'tagApi', 'tagName', 'rootDomain', 'serviceHost'];
+    for (const field of tcfFields) {
+      if (tcf[field]) {
+        rows.push(`<div class="config-row"><span class="config-key">tcf.${field}</span><span class="config-value">${tcf[field]}</span></div>`);
+      }
+    }
+  }
+  
+  return rows.join('');
+}
+
+function fetchAndShowConfig(btn: HTMLButtonElement, url: string, configContainer: HTMLElement) {
+  const originalText = btn.textContent;
+  btn.textContent = "Loading...";
+  btn.disabled = true;
+  
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const activeTabId = tabs[0]?.id;
+    if (!activeTabId) {
+      configContainer.innerHTML = '<div class="config-error">Cannot fetch config</div>';
+      btn.textContent = originalText;
+      btn.disabled = false;
+      return;
+    }
+    
+    chrome.tabs.sendMessage(activeTabId, { type: "FETCH_SCRIPT_CONFIG", url }, (config: ScriptConfig | null) => {
+      if (chrome.runtime.lastError || !config) {
+        configContainer.innerHTML = '<div class="config-error">Config not found or parse error</div>';
+        configContainer.style.display = "block";
+      } else {
+        const configHtml = renderScriptConfig(config);
+        configContainer.innerHTML = `
+          <div class="config-content">
+            ${configHtml}
+            <div class="config-actions">
+              <button class="config-copy-all-btn" title="Copy JSON">Copy JSON</button>
+            </div>
+          </div>
+        `;
+        configContainer.style.display = "block";
+        
+        const copyAllBtn = configContainer.querySelector<HTMLButtonElement>(".config-copy-all-btn");
+        copyAllBtn?.addEventListener("click", () => {
+          navigator.clipboard.writeText(JSON.stringify(config, null, 2)).then(() => {
+            copyAllBtn.textContent = "Copied!";
+            setTimeout(() => { copyAllBtn.textContent = "Copy JSON"; }, 1500);
+          });
+        });
+      }
+      
+      btn.textContent = "Hide Config";
+      btn.disabled = false;
+      btn.classList.add("active");
+    });
+  });
+}
+
+function renderScripts(scripts: DetectedScript[]) {
+  const container = document.getElementById("scripts-data")!;
+
+  if (!scripts || scripts.length === 0) {
+    container.innerHTML = '<div class="no-data">No scripts detected on this page</div>';
+    return;
+  }
+
+  container.innerHTML = scripts.map((script, index) => `
+    <div class="script-item" data-index="${index}">
+      <div class="script-header">
+        <span class="script-type-badge">${script.type}</span>
+        <button class="script-config-btn" data-url="${script.url}" data-index="${index}">View Config</button>
+      </div>
+      <div class="script-id">
+        <span class="script-id-label">ID:</span>
+        <span class="script-id-value">${script.id}</span>
+        <button class="script-copy-btn" data-value="${script.id}" title="Copy ID">
+          ${COPY_ICON}
+        </button>
+      </div>
+      <div class="script-url">
+        <a href="${script.url}" target="_blank" class="script-url-link">${script.url}</a>
+        <button class="script-copy-btn" data-value="${script.url}" title="Copy URL">
+          ${COPY_ICON}
+        </button>
+      </div>
+      <div class="script-config" id="script-config-${index}" style="display: none;"></div>
+    </div>
+  `).join('');
+
+  container.querySelectorAll<HTMLButtonElement>(".script-copy-btn").forEach((btn) => {
+    const copyIcon = btn.innerHTML;
+    btn.addEventListener("click", () => {
+      const val = btn.dataset.value || "";
+      navigator.clipboard.writeText(val).then(() => {
+        btn.innerHTML = CHECK_ICON;
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.innerHTML = copyIcon;
+          btn.classList.remove("copied");
+        }, 1500);
+      });
+    });
+  });
+
+  container.querySelectorAll<HTMLButtonElement>(".script-config-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const url = btn.dataset.url || "";
+      const index = btn.dataset.index || "0";
+      const configContainer = document.getElementById(`script-config-${index}`)!;
+      
+      if (btn.classList.contains("active")) {
+        configContainer.style.display = "none";
+        btn.textContent = "View Config";
+        btn.classList.remove("active");
+      } else {
+        fetchAndShowConfig(btn, url, configContainer);
+      }
+    });
+  });
+}
+
+function loadScripts() {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const activeTabId = tabs[0]?.id;
+    if (!activeTabId) {
+      renderScripts([]);
+      return;
+    }
+
+    chrome.tabs.sendMessage(activeTabId, { type: "GET_W_SCRIPTS" }, (response) => {
+      if (chrome.runtime.lastError || !response) {
+        renderScripts([]);
+        return;
+      }
+      renderScripts(response);
+    });
+  });
+}
+
 function loadData(opts?: { silent?: boolean }) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const activeTabId = tabs[0]?.id;
@@ -406,6 +574,8 @@ function onTabUpdated(tabId: number, changeInfo: { status?: string }) {
         setTimeout(() => {
           loadData();
           updateVliEncodeUrl();
+          loadScripts();
+          applyAdHighlightOnTabChange();
         }, 500);
       }
     });
@@ -416,6 +586,8 @@ function onTabUpdated(tabId: number, changeInfo: { status?: string }) {
 function onTabActivated() {
   loadData();
   updateVliEncodeUrl();
+  loadScripts();
+  applyAdHighlightOnTabChange();
 }
 
 function updateVliEncodeUrl() {
@@ -1022,16 +1194,60 @@ function initVliEncodeUrl() {
   updateVliEncodeUrl();
 }
 
+const AD_HIGHLIGHT_STORAGE_KEY = "ad_highlight_enabled";
+
+function sendAdHighlightMessage(enabled: boolean) {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const activeTabId = tabs[0]?.id;
+    if (activeTabId) {
+      chrome.tabs.sendMessage(activeTabId, { type: "TOGGLE_AD_HIGHLIGHT", enabled });
+    }
+  });
+}
+
+function initAdHighlightToggle() {
+  const toggle = document.getElementById("highlight-ads-toggle") as HTMLInputElement;
+  if (!toggle) return;
+
+  // Load saved state
+  chrome.storage.local.get(AD_HIGHLIGHT_STORAGE_KEY, (result) => {
+    const enabled = result[AD_HIGHLIGHT_STORAGE_KEY] === true;
+    toggle.checked = enabled;
+    if (enabled) {
+      sendAdHighlightMessage(true);
+    }
+  });
+
+  // Handle toggle change
+  toggle.addEventListener("change", () => {
+    const enabled = toggle.checked;
+    chrome.storage.local.set({ [AD_HIGHLIGHT_STORAGE_KEY]: enabled });
+    sendAdHighlightMessage(enabled);
+  });
+}
+
+function applyAdHighlightOnTabChange() {
+  chrome.storage.local.get(AD_HIGHLIGHT_STORAGE_KEY, (result) => {
+    const enabled = result[AD_HIGHLIGHT_STORAGE_KEY] === true;
+    if (enabled) {
+      setTimeout(() => sendAdHighlightMessage(true), 500);
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   initTabs();
   initToolInputs();
   initVliEncodeUrl();
+  initAdHighlightToggle();
   loadData();
+  loadScripts();
   document.getElementById("reload")!.addEventListener("click", () => {
     // Clear all tool textareas
     document.querySelectorAll<HTMLTextAreaElement>(".tool-input, .tool-result").forEach(el => el.value = "");
     loadData();
+    loadScripts();
   });
   document.getElementById("theme-toggle")!.addEventListener("click", toggleTheme);
 });

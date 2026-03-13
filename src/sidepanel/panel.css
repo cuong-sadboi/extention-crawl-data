@@ -1084,6 +1084,295 @@ body.light #vli-encode-url:focus {
   box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.08);
 }
 
+/* ==================== SCRIPTS DETECTION TAB ==================== */
+
+.tool-description {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.tool-description code {
+  background: var(--bg-elevated);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 10px;
+  color: var(--accent);
+}
+
+.scripts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.script-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+}
+
+.script-item:hover {
+  border-color: var(--field-hover-border);
+  box-shadow: var(--field-hover-shadow);
+}
+
+.script-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.script-type-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+}
+
+.script-id {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.script-id-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.script-id-value {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  word-break: break-all;
+}
+
+.script-url {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.script-url-link {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: none;
+  word-break: break-all;
+  transition: color 0.2s ease;
+}
+
+.script-url-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.script-copy-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.script-copy-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.script-copy-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.script-copy-btn.copied {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.script-config-btn {
+  margin-left: auto;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.script-config-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.script-config-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.script-config-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.script-config {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.config-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.config-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.config-key {
+  min-width: 100px;
+  flex-shrink: 0;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+.config-value {
+  flex: 1;
+  color: var(--text);
+  word-break: break-all;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+.config-error {
+  font-size: 11px;
+  color: #f85149;
+  padding: 8px;
+  background: rgba(248, 81, 73, 0.1);
+  border-radius: 4px;
+}
+
+.config-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.config-copy-all-btn {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--accent);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.config-copy-all-btn:hover {
+  background: var(--accent-hover);
+}
+
+/* ==================== TOGGLE SWITCH ==================== */
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.toggle-label {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border);
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #fff;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: #f85149;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+}
+
 /* ==================== SCROLLBAR ==================== */
 
 ::-webkit-scrollbar {
